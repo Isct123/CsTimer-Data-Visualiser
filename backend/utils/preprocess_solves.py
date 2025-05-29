@@ -71,6 +71,6 @@ def load_all_sessions(filepath='data/sample.txt'):
     return sessions
 
 if __name__ == "__main__":
-    sessions = load_all_sessions()
+    sessions = load_all_sessions("data/real.txt")
     for session in sessions:
         print(session)
