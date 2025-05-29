@@ -105,7 +105,7 @@ def seconds_to_days_hours_minutes(seconds):
     minutes = seconds // 60
     return days, hours, minutes
 
-def load_all_sessions(filepath='../data/real.txt'):
+def load_all_sessions(filepath):
     with open(filepath, 'r') as f:
         raw_data = json.load(f)
 
@@ -128,9 +128,10 @@ def load_all_sessions(filepath='../data/real.txt'):
 
     return sessions
 
-def load_all_cubing_periods(sessions = load_all_sessions()):
+def load_all_cubing_periods(filepath):
     """Load all cubing periods from the provided sessions."""
     cubing_periods = []
+    sessions = load_all_sessions(filepath)
     for session in sessions:
         cubing_periods.extend(get_cubing_periods(session))
     return cubing_periods
