@@ -23,8 +23,6 @@ class Session:
         self.solves = solves
         self.multiple_events = multiple_events
 
-    
-
     def __str__(self):
         return f"Session: {self.name}, Solves: {len(self.solves)} for {self.scramble_event}, ID: {self.id}, Multiple Events: {self.multiple_events}"
 

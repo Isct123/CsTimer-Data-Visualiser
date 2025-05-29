@@ -1,1 +1,2 @@
-node_modules
+backend/data/*
+# Ignore all files in the data directory
