@@ -47,7 +47,7 @@ def load_solves_for_session(data, session_key):
     solve_entries = data.get(session_key, [])
     return [create_solve(s) for s in solve_entries]
 
-def load_all_sessions(filepath='data/sample.txt'):
+def load_all_sessions(filepath='data/real.txt'):
     with open(filepath, 'r') as f:
         raw_data = json.load(f)
 
