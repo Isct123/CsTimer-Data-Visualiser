@@ -88,6 +88,6 @@ def plot_monthly_event_time_breakdown(sessions):
 
 if __name__ == "__main__":
     # Example usage with real data file path
-    sessions = pf.load_all_sessions(filepath="data/real.txt")
+    sessions = pf.load_all_sessions(filepath="data/suku.txt")
     monthly_breakdown = plot_monthly_event_time_breakdown(sessions)
     print(monthly_breakdown)
