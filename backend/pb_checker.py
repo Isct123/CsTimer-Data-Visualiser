@@ -35,7 +35,7 @@ def ao12PBs(sessions):
         current_pb = float('inf')
         for i in range(len(s.solves) - 11):  # need 5 solves
             ao12_solves = s.solves[i:i+12]
-            times = [solve.time for solve in ao12_solves if solve.time > 0]
+            times = [solve.time for solve in ao12_solves if solve.penalty == 0]
             if len(times) < 12:
                 continue
 
