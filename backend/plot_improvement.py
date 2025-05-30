@@ -3,6 +3,8 @@ import utils.preprocess_solves as pf
 from datetime import datetime
 import matplotlib.pyplot as plt
 
+#TODO: Add a function to plot ao12 and ao100 improvements or make a generic function that can plot any average improvement
+
 def plot_improvement(dict):
     from datetime import datetime
     dict = dict.copy()  # Avoid modifying the original dictionary
