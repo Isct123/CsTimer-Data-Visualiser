@@ -1,7 +1,7 @@
 import utils.preprocess_solves as pf
 from datetime import datetime
 
-def time_spent_breakup(cubing_periods=pf.load_all_cubing_periods(filepath="data/real.txt")):
+def time_spent_breakup(cubing_periods=pf.load_all_cubing_periods(filepath="data/suku.txt")):
     """Calculate the total time spent on solves for each event in the provided cubing periods.
     
     Args:
@@ -47,7 +47,7 @@ def seconds_to_days_hours_minutes(seconds):
     return days, hours, minutes
 
 if __name__ == "__main__":
-    cubing_periods = pf.load_all_cubing_periods(filepath="data/real.txt")
+    cubing_periods = pf.load_all_cubing_periods(filepath="data/suku.txt")
     total_time = time_spent_breakup(cubing_periods)
     for event, total in total_time.items():
         days, hours, minutes = seconds_to_days_hours_minutes(total)
