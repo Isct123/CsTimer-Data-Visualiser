@@ -89,7 +89,7 @@ def most_improved(sessions):
 
 if __name__ == "__main__":
     session = pf.load_all_sessions("data/suku.txt")[0]
-    print(most_improved(pf.load_all_sessions("data/suku.txt")))
+    print(most_improved(pf.load_all_sessions("data/real.txt")))
 
     # Singles
     single_dict = create_single_dict(session)
