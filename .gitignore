@@ -1,2 +1,8 @@
 backend/data/*
 # Ignore all files in the data directory
+uploads/*
+# Ignore all files in the uploads directory
+backend/__pycache__/*
+# Ignore Python bytecode cache
+backend/.ipynb_checkpoints/*
+# Ignore Jupyter notebook checkpoints

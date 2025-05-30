@@ -63,6 +63,7 @@ def plot_monthly_event_time_breakdown(sessions):
     # Color palette for events
     colors = plt.cm.get_cmap('tab20', len(all_events))
     
+    '''
     fig, ax = plt.subplots(figsize=(12, 6))
     bottom = np.zeros(len(months))
     for i, event in enumerate(all_events):
@@ -78,6 +79,7 @@ def plot_monthly_event_time_breakdown(sessions):
     plt.tight_layout()
     plt.grid(axis='y', linestyle='--', alpha=0.6)
     plt.show()
+    '''
 
     # Return raw dictionary (converted to hours)
     monthly_hours = {
