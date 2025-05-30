@@ -6,3 +6,5 @@ backend/__pycache__/*
 # Ignore Python bytecode cache
 backend/.ipynb_checkpoints/*
 # Ignore Jupyter notebook checkpoints
+
+frontend/node_modules/*
