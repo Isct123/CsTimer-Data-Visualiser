@@ -71,10 +71,25 @@ def create_pb_dict(session, n):
 
     return {pb[0][-1].date: pb[1] for pb in pbs}
 
+def most_improved(sessions):
+    improvement_dict = {}
+    for session in sessions:
+        if(len(session.solves) > 100):
+            first100times = [i.time for i in session.solves[:100]]
+            last100times = [i.time for i in session.solves[-100:]]
+            improvement_dict[session.name] = {
+                "firstao100": compute_trimmed_average(first100times, 100),
+                "lastao100": compute_trimmed_average(last100times, 100),
+                "improvement": (compute_trimmed_average(first100times, 100) - compute_trimmed_average(last100times, 100))/compute_trimmed_average(first100times, 100) * 100
+            }
+
+    return sorted(improvement_dict.items(), key=lambda x: x[1]["improvement"], reverse=True)
+
 # --- MAIN --- #
 
 if __name__ == "__main__":
     session = pf.load_all_sessions("data/suku.txt")[0]
+    print(most_improved(pf.load_all_sessions("data/suku.txt")))
 
     # Singles
     single_dict = create_single_dict(session)
