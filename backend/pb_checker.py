@@ -1,5 +1,16 @@
 import utils.preprocess_solves as pf
 
+def singlePBs(sessions):
+    current_pb = float('inf')
+    pb_list = []
+    for s in sessions:
+        for solve in s.solves:
+            if solve.time > 0 and solve.time <= current_pb:
+                current_pb = solve.time
+                pb_list.append((solve, current_pb))
+
+    return pb_list
+
 def ao5PBs(sessions):
     pb_list = []
     for s in sessions:
@@ -56,11 +67,6 @@ def ao100PBs(sessions):
 
 if __name__ == "__main__":
     sessions = [pf.load_all_sessions("data/suku.txt")[0]]
-    pb_list = ao100PBs(sessions)
+    pb_list = singlePBs(sessions)
 
-    for i, (ao100, avg) in enumerate(pb_list, 1):
-        print(f"\nPB #{i} - Avg: {avg:.2f}s")
-        for solve in ao100:
-            print(f"  {solve}")
-
-    print(f"\nTotal AO100 PBs found: {len(pb_list)}")
+    print(pb_list)

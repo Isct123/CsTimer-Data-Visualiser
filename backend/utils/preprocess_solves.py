@@ -57,6 +57,10 @@ def create_solve(raw_solve):
     scramble = raw_solve[1]
     comment = raw_solve[2]
     date = unix_to_time(raw_solve[3])
+    if(penalty == -1):
+        time = float('inf')  # Handle DNF as infinity
+    elif(penalty == 2000):
+        time += 2  # Handle +2 penalty
     return Solve(time, date, scramble, penalty, comment)
 
 def load_solves_for_session(data, session_key):
