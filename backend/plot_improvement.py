@@ -3,55 +3,107 @@ import utils.preprocess_solves as pf
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-#TODO: Add a function to plot ao12 and ao100 improvements or make a generic function that can plot any average improvement
-
-def plot_improvement(dict):
-    from datetime import datetime
-    dict = dict.copy()  # Avoid modifying the original dictionary
-
-    # Step 1: Sort and parse the dictionary
-    timestamps = sorted(dict.keys())
+def plot_improvement(avg_dict, title="Average Over Time", ylabel="Average Time (s)"):
+    """Generic plot function for any average (aoX, singles, etc)."""
+    avg_dict = avg_dict.copy()
+    timestamps = sorted(avg_dict.keys())
     dates = [datetime.strptime(ts, "%Y-%m-%d %H:%M:%S") for ts in timestamps]
-    ao5_values = [dict[ts] for ts in timestamps]
+    values = [avg_dict[ts] for ts in timestamps]
 
-    # Step 2: Plot
     plt.figure(figsize=(12, 6))
-    plt.plot(dates, ao5_values, linewidth=1.5)
-    plt.title("ao5 Over Time (Improvement)")
+    plt.plot(dates, values, linewidth=1.5)
+    plt.title(title)
     plt.xlabel("Date")
-    plt.ylabel("ao5 Time (s)")
+    plt.ylabel(ylabel)
     plt.grid(True)
     plt.tight_layout()
-    plt.gcf().autofmt_xdate()  # Auto-format x-axis for dates
-    return plt.show()
-    
+    plt.gcf().autofmt_xdate()
+    plt.show()
 
-def create_ao5_dict(session):
-    """Create a dictionary of ao5 averages with timestamps."""
+def compute_trimmed_average(times, n):
+    """Trimmed average according to WCA rules."""
+    trim_count = 1 if n in [5, 12] else 5 if n == 100 else int(n * 0.05)
+    if 2 * trim_count >= len(times):
+        raise ValueError("Too few solves to compute a trimmed average.")
+    sorted_times = sorted(times)
+    trimmed = sorted_times[trim_count:-trim_count]
+    return sum(trimmed) / len(trimmed)
+
+def create_avg_dict(session, n):
+    """Create a dictionary of aoN averages with timestamps, using proper trimming."""
     averages = {}
-    averages.clear()  # Clear previous data
-    for i in range(len(session.solves)-4):
-        solves = session.solves[i:i+5]
+    for i in range(len(session.solves) - n + 1):
+        solves = session.solves[i:i + n]
         when = solves[-1].date
-        ao5 = [i.time for i in solves]
-        ao5 = sorted(ao5)
-        averages.update({when: sum(ao5[1:-1]) / 3})
-    return averages 
+        times = [s.time for s in solves]
+        try:
+            avg = compute_trimmed_average(times, n)
+            averages[when] = avg
+        except ValueError:
+            continue
+    return averages
 
-def create_ao5_pb_dict(session):
-    """Create a dictionary of pb ao5 averages with timestamps."""
-    ao5_pbs = pb_checker.ao5PBs([session])
-    ao5_pb_dict = {}
-    for pb in ao5_pbs:
-        date = pb[0][-1].date
-        time = pb[1]
-        print(time, date)
-        ao5_pb_dict.update({date:time})
-    return ao5_pb_dict
+def create_single_dict(session):
+    """Create a dictionary of single solve times with timestamps."""
+    return {solve.date: solve.time for solve in session.solves}
+
+def create_single_pb_dict(session):
+    """Create a dictionary of single solve PBs with timestamps."""
+    solves = session.solves
+    best_time = float('inf')
+    pb_dict = {}
+    for s in solves:
+        if s.time < best_time:
+            best_time = s.time
+            pb_dict[s.date] = s.time
+    return pb_dict
+
+def create_pb_dict(session, n):
+    """Create a dictionary of personal best aoN averages with timestamps."""
+    if n == 5:
+        pbs = pb_checker.ao5PBs([session])
+    elif n == 12:
+        pbs = pb_checker.ao12PBs([session])
+    elif n == 100:
+        pbs = pb_checker.ao100PBs([session])
+    else:
+        raise ValueError("Unsupported average length for PBs.")
+
+    return {pb[0][-1].date: pb[1] for pb in pbs}
+
+# --- MAIN --- #
 
 if __name__ == "__main__":
-    session = pf.load_all_sessions("data/suku.txt")[0]  # Load the first session
-    ao5_pbs = pb_checker.ao5PBs([session])
-    ao5_pb_dict = create_ao5_pb_dict(session)
-    print(ao5_pb_dict)
-    plot_improvement(ao5_pb_dict)
+    session = pf.load_all_sessions("data/suku.txt")[0]
+
+    # Singles
+    single_dict = create_single_dict(session)
+    plot_improvement(single_dict, title="Single Solve Times", ylabel="Single Time (s)")
+
+    # Single PBs
+    single_pb_dict = create_single_pb_dict(session)
+    plot_improvement(single_pb_dict, title="Single Solve PBs", ylabel="Single Time (s)")
+
+    # ao5
+    ao5_dict = create_avg_dict(session, 5)
+    plot_improvement(ao5_dict, title="ao5 Over Time", ylabel="ao5 Time (s)")
+
+    # ao5 PBs
+    ao5_pb_dict = create_pb_dict(session, 5)
+    plot_improvement(ao5_pb_dict, title="ao5 PBs Over Time", ylabel="ao5 Time (s)")
+
+    # ao12
+    ao12_dict = create_avg_dict(session, 12)
+    plot_improvement(ao12_dict, title="ao12 Over Time", ylabel="ao12 Time (s)")
+
+    # ao12 PBs
+    ao12_pb_dict = create_pb_dict(session, 12)
+    plot_improvement(ao12_pb_dict, title="ao12 PBs Over Time", ylabel="ao12 Time (s)")
+
+    # ao100
+    ao100_dict = create_avg_dict(session, 100)
+    plot_improvement(ao100_dict, title="ao100 Over Time", ylabel="ao100 Time (s)")
+
+    # ao100 PBs
+    ao100_pb_dict = create_pb_dict(session, 100)
+    plot_improvement(ao100_pb_dict, title="ao100 PBs Over Time", ylabel="ao100 Time (s)")
