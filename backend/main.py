@@ -4,6 +4,7 @@ import time_spent_cubing
 import monthly_breakdown
 import shutil
 import os
+import longest_cubing_period
 
 app = FastAPI()
 
@@ -38,6 +39,20 @@ async def upload_solves(file: UploadFile = File(...)):
     # Instead of plotting, you may want just the data:
     monthly_stats = monthly_breakdown.plot_monthly_event_time_breakdown(sessions)
     time_spent_cubing_stats = time_spent_cubing.time_spent_breakup(sessions)
+    longest_period, max_duration_hours = longest_cubing_period.longest_cubing_period(sessions)
+
+    #TODO: Format the response string to be more attractive.
+    response_str = (
+        f"Longest cubing period: {longest_period.session_name} with {len(longest_period.solves)} solves\n"
+        f"Duration: {max_duration_hours:.2f} hours\n"
+        f"Scramble Event: {longest_period.scramble_event}\n"
+        f"Multiple Events: {longest_period.multiple_events}\n"
+        f"Start Date: {longest_period.solves[0].date}\n"
+        f"End Date: {longest_period.solves[-1].date}"
+    )
+
+# Now response_str is a string you can return or send as a response
+
     
     # You can call other feature functions similarly and collect all results
     # For example:
@@ -48,8 +63,8 @@ async def upload_solves(file: UploadFile = File(...)):
     response = {
         "monthly_stats": monthly_stats,
         "time_spent_stats": time_spent_cubing_stats,
-        # "feature1_stats": feature1_stats,
-        # "feature2_stats": feature2_stats,
+        "longest_cubing_period_stats": response_str,
+        #Add other feature stats here as needed
     }
     print(time_spent_cubing_stats)
     return response

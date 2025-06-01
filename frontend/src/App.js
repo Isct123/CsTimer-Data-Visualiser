@@ -149,6 +149,7 @@ export default function App() {
           Time spent on each event
         </h3>
         <BarGraph stats={stats?.time_spent_stats} />
+        <h1>{stats?.longest_cubing_period_stats}</h1>
       </div>
 
       <div style={{ height: 60 }} />

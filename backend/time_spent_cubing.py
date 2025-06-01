@@ -29,7 +29,7 @@ def time_spent_breakup(sessions = pf.load_all_sessions(filepath="data/suku.txt")
     }
 
     for period in cubing_periods:
-        local_total = period.time_spent() * 60  # convert minutes to seconds
+        local_total = period.time_spent() / 60  # convert minutes to seconds
         event = cstimer_event_map.get(period.scramble_event, period.scramble_event)
         if event not in event_times:
             event_times[event] = 0

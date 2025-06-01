@@ -1,11 +1,12 @@
 import utils.preprocess_solves as pf
 
-def longest_cubing_period(periods):
+def longest_cubing_period(sessions):
     """Find the longest cubing period from the provided cubing periods.
 
     Args:
         periods (list): List of CubingPeriod objects containing solves.
     """
+    periods = pf.load_all_cubing_periods(sessions)
     longest_period = None
     max_duration = 0
 
@@ -18,7 +19,7 @@ def longest_cubing_period(periods):
     return longest_period, max_duration / 3600  # return period and duration in hours
 
 if __name__ == "__main__":  
-    longest_period, max_duration_hours = longest_cubing_period(periods =pf.load_all_cubing_periods(pf.load_all_sessions(filepath="data/suku.txt")))
+    longest_period, max_duration_hours = longest_cubing_period(sessions = pf.load_all_sessions("data/suku.txt"))
     print(f"Longest cubing period: {longest_period.session_name} with {len(longest_period.solves)} solves")
     print(f"Duration: {max_duration_hours:.2f} hours")
     print(f"Scramble Event: {longest_period.scramble_event}")
