@@ -1,11 +1,12 @@
 import utils.preprocess_solves as pf
 
-def max_time_spent_cubing_in_day(cubing_periods):
+def max_time_spent_cubing_in_day(sessions):
     """Calculate the maximum time spent cubing in a single day from the provided cubing periods.
 
     Args:
         cubing_periods (list): List of CubingPeriod objects containing solves.
     """
+    cubing_periods = pf.load_all_cubing_periods(sessions)
     daily_time_spent = {}
 
     for period in cubing_periods:
@@ -22,6 +23,6 @@ def max_time_spent_cubing_in_day(cubing_periods):
     return max_date, max_time / 3600  # return date and time in hours
 
 if __name__ == "__main__":
-    cubing_periods = pf.load_all_cubing_periods(pf.load_all_sessions("data/suku.txt"))
-    max_date, max_time_hours = max_time_spent_cubing_in_day(cubing_periods)
+    #cubing_periods = pf.load_all_cubing_periods()
+    max_date, max_time_hours = max_time_spent_cubing_in_day(pf.load_all_sessions("data/suku.txt"))
     print(f"Maximum time spent cubing in a single day: {max_time_hours:.2f} hours on {max_date}")
