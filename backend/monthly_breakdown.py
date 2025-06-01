@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from dateutil.relativedelta import relativedelta
 import utils.preprocess_solves as pf
 from utils.preprocess_solves import get_cubing_periods
-import numpy as np
 
 def month_key(date: datetime) -> str:
     """Helper to convert a datetime into a 'YYYY-MM' key."""

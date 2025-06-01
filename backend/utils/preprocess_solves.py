@@ -130,16 +130,18 @@ def load_all_sessions(filepath):
 
     return sessions
 
-def load_all_cubing_periods(filepath):
+def load_all_cubing_periods(sessions):
     """Load all cubing periods from the provided sessions."""
     cubing_periods = []
-    sessions = load_all_sessions(filepath)
+    print(sessions)
+    print(sessions[0])
     for session in sessions:
+        print(session.name)
         cubing_periods.extend(get_cubing_periods(session))
     return cubing_periods
 
 if __name__ == "__main__":
-    sessions = load_all_sessions()
+    sessions = load_all_sessions("data/sample.txt")
     print(get_cubing_periods(sessions[0])[0])  # Print the first cubing period of the first session
     print()
     print(get_cubing_periods(sessions[0])[2])  # Print the first cubing period of the first session

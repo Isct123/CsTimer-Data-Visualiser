@@ -1,6 +1,6 @@
 import utils.preprocess_solves as pf
 
-def most_solves_in_a_day(cubing_periods=pf.load_all_cubing_periods(filepath="data/real.txt")):
+def most_solves_in_a_day(cubing_periods):
     """Calculate the day with the most solves from the provided cubing periods.
 
     Args:
@@ -22,6 +22,6 @@ def most_solves_in_a_day(cubing_periods=pf.load_all_cubing_periods(filepath="dat
     return max_date, max_solves  # return date and number of solves
 
 if __name__ == "__main__":
-    cubing_periods = pf.load_all_cubing_periods(filepath="data/real.txt")
+    cubing_periods = pf.load_all_cubing_periods(pf.load_all_sessions(filepath="data/real.txt"))
     max_date, max_solves = most_solves_in_a_day(cubing_periods)
     print(f"Day with the most solves: {max_date} with {max_solves} solves")

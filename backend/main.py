@@ -37,7 +37,7 @@ async def upload_solves(file: UploadFile = File(...)):
     
     # Instead of plotting, you may want just the data:
     monthly_stats = monthly_breakdown.plot_monthly_event_time_breakdown(sessions)
-    time_spent_cubing_stats = time_spent_cubing.time_spent_breakup(sessions)
+    #time_spent_cubing_stats = time_spent_cubing.time_spent_breakup(sessions)
     
     # You can call other feature functions similarly and collect all results
     # For example:
@@ -47,7 +47,7 @@ async def upload_solves(file: UploadFile = File(...)):
     # Return a JSON response with all stats
     return {
         "monthly_stats": monthly_stats,
-        "time_spent_stats": time_spent_cubing_stats,
+        #"time_spent_stats": time_spent_cubing_stats,
         # "feature1_stats": feature1_stats,
         # "feature2_stats": feature2_stats,
     }
