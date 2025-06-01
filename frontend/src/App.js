@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import BarGraph from "./Components/BarGraph";
+import SplitBarGraph from "./Components/SplitBarGraph";
 
 export default function App() {
   const [file, setFile] = useState(null);
@@ -135,8 +136,9 @@ export default function App() {
         >
           Monthly Time Breakdown Chart
         </h3>
+        <SplitBarGraph stats={stats?.monthly_stats} />
 
-        <BarGraph stats={stats?.monthly_stats} />
+        <BarGraph stats={stats?.time_spent_stats} />
       </div>
 
       <div style={{ height: 60 }} />

@@ -6,10 +6,41 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
   ResponsiveContainer,
 } from "recharts";
 
-export default function BarGraph({ stats }) {
+// Color palette
+const COLORS = [
+  "#FF6B6B",
+  "#FFD93D",
+  "#6BCB77",
+  "#4D96FF",
+  "#FF6F91",
+  "#6A4C93",
+  "#43E6FC",
+  "#FFB26B",
+  "#A3FFD6",
+  "#FF61A6",
+];
+
+function transformData(monthlyStats) {
+  const eventsSet = new Set();
+  Object.values(monthlyStats).forEach((eventData) => {
+    Object.keys(eventData).forEach((event) => eventsSet.add(event));
+  });
+  const allEvents = Array.from(eventsSet);
+  const data = Object.entries(monthlyStats).map(([month, eventData]) => {
+    const entry = { month };
+    allEvents.forEach((event) => {
+      entry[event] = eventData[event] || 0;
+    });
+    return entry;
+  });
+  return { data, allEvents };
+}
+
+export default function SplitBarGraph({ stats }) {
   if (!stats) {
     return (
       <p
@@ -25,11 +56,7 @@ export default function BarGraph({ stats }) {
     );
   }
 
-  // Convert the simplified stats object into an array for Recharts
-  const data = Object.entries(stats).map(([month, value]) => ({
-    name: month,
-    value,
-  }));
+  const { data, allEvents } = transformData(stats);
 
   return (
     <div
@@ -57,7 +84,7 @@ export default function BarGraph({ stats }) {
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
-            dataKey="name"
+            dataKey="month"
             angle={-45}
             textAnchor="end"
             interval={0}
@@ -74,7 +101,6 @@ export default function BarGraph({ stats }) {
             style={{ fontWeight: 500, fontSize: 14 }}
           />
           <Tooltip
-            formatter={(value) => `${value} hours`}
             contentStyle={{
               background: "#fff",
               borderRadius: 8,
@@ -83,11 +109,20 @@ export default function BarGraph({ stats }) {
               fontWeight: 500,
             }}
           />
-          <Bar
-            dataKey="value"
-            fill="#4D96FF"
-            radius={[4, 4, 0, 0]}
+          <Legend
+            verticalAlign="top"
+            height={36}
+            wrapperStyle={{ fontWeight: 500, fontSize: 14 }}
           />
+          {allEvents.map((event, idx) => (
+            <Bar
+              key={event}
+              dataKey={event}
+              stackId="a"
+              fill={COLORS[idx % COLORS.length]}
+              radius={[4, 4, 0, 0]}
+            />
+          ))}
         </BarChart>
       </ResponsiveContainer>
     </div>
