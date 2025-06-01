@@ -21,13 +21,13 @@ const DotPlot = ({ data, title = "", ylabel = "", xlabel = "Date" }) => {
   }));
 
   return (
-    <div className="w-screen px-4 my-8">
-      <h2 className="text-xl font-semibold mb-2 text-center">{title}</h2>
+    <div style={{ width: "100%", height: "450px", padding: "1rem 0" }}>
+      <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>{title}</h2>
       <ResponsiveContainer
         width="100%"
-        height={400}
+        height="100%"
       >
-        <ScatterChart margin={{ top: 20, right: 30, bottom: 20, left: 10 }}>
+        <ScatterChart margin={{ top: 20, right: 30, bottom: 20, left: 20 }}>
           <CartesianGrid />
           <XAxis
             dataKey="date"

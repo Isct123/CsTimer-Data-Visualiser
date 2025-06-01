@@ -135,7 +135,6 @@ export default function App() {
                 marginBottom: 20,
                 fontWeight: 600,
                 fontSize: 20,
-                color: "#333",
               }}
             >
               Monthly Time Breakdown Chart
@@ -148,7 +147,6 @@ export default function App() {
                 marginBottom: 20,
                 fontWeight: 600,
                 fontSize: 20,
-                color: "#333",
               }}
             >
               Time spent on each event
