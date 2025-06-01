@@ -7,6 +7,7 @@ import features.most_solves_in_a_day as most_solves_in_a_day
 import shutil
 import os
 import features.longest_cubing_period as longest_cubing_period
+import plot_improvement
 
 app = FastAPI()
 
@@ -63,7 +64,8 @@ async def upload_solves(file: UploadFile = File(...)):
     # For example:
     # feature1_stats = feature1.process(sessions)
     # feature2_stats = feature2.process(sessions)
-    
+    ao100_dict = plot_improvement.create_avg_dict(sessions[0], 100)
+    ao100_pb_dict = plot_improvement.create_pb_dict(sessions[0], 100)
     # Return a JSON response with all stats
     response = {
         "monthly_stats": monthly_stats,
@@ -71,6 +73,8 @@ async def upload_solves(file: UploadFile = File(...)):
         "longest_cubing_period_stats": response_str,
         "max_time_spent_cubing_in_a_day_stats": f"{max_time_hours:.2f} hours on {max_date}",
         "most_solves_in_a_day_stats": f"Day with the most solves: {max_solves_date} with {max_solves} solves",
+        "ao100_progression": ao100_dict,
+        "ao100_pb_progression": ao100_pb_dict,
         #Add other feature stats here as needed
     }
     #print(time_spent_cubing_stats)

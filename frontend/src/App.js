@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import BarGraph from "./Components/BarGraph";
 import SplitBarGraph from "./Components/SplitBarGraph";
+import DotPlot from "./Components/DotPlot";
 
 export default function App() {
   const [file, setFile] = useState(null);
@@ -43,6 +44,7 @@ export default function App() {
         margin: 0,
         padding: 0,
         boxSizing: "border-box",
+        overflowX: "hidden",
       }}
     >
       <header
@@ -125,36 +127,55 @@ export default function App() {
           </button>
         </div>
 
-        <h3
-          style={{
-            marginTop: 40,
-            marginBottom: 20,
-            fontWeight: 600,
-            fontSize: 20,
-            color: "#333",
-          }}
-        >
-          Monthly Time Breakdown Chart
-        </h3>
-        <SplitBarGraph stats={stats?.monthly_stats} />
-        <h3
-          style={{
-            marginTop: 40,
-            marginBottom: 20,
-            fontWeight: 600,
-            fontSize: 20,
-            color: "#333",
-          }}
-        >
-          Time spent on each event
-        </h3>
-        <BarGraph stats={stats?.time_spent_stats} />
-        <h3>{stats?.longest_cubing_period_stats}</h3>
-        <h3>{stats?.max_time_spent_cubing_in_a_day_stats}</h3>
-        <h3>{stats?.most_solves_in_a_day_stats}</h3>
-      </div>
+        {stats && (
+          <>
+            <h3
+              style={{
+                marginTop: 40,
+                marginBottom: 20,
+                fontWeight: 600,
+                fontSize: 20,
+                color: "#333",
+              }}
+            >
+              Monthly Time Breakdown Chart
+            </h3>
+            <SplitBarGraph stats={stats.monthly_stats} />
 
-      <div style={{ height: 60 }} />
+            <h3
+              style={{
+                marginTop: 40,
+                marginBottom: 20,
+                fontWeight: 600,
+                fontSize: 20,
+                color: "#333",
+              }}
+            >
+              Time spent on each event
+            </h3>
+            <BarGraph stats={stats.time_spent_stats} />
+
+            <h3>{stats.longest_cubing_period_stats}</h3>
+            <h3>{stats.max_time_spent_cubing_in_a_day_stats}</h3>
+            <h3>{stats.most_solves_in_a_day_stats}</h3>
+
+            <DotPlot
+              data={stats.ao100_progression}
+              title="Ao100 Progression"
+              ylabel="Ao100 Time (s)"
+              xlabel="Date"
+            />
+            <DotPlot
+              data={stats.ao100_pb_progression}
+              title="Ao100 PB Progression"
+              ylabel="Ao100 Time (s)"
+              xlabel="Date"
+            />
+          </>
+        )}
+
+        <div style={{ height: 60 }} />
+      </div>
     </div>
   );
 }
