@@ -137,7 +137,17 @@ export default function App() {
           Monthly Time Breakdown Chart
         </h3>
         <SplitBarGraph stats={stats?.monthly_stats} />
-
+        <h3
+          style={{
+            marginTop: 40,
+            marginBottom: 20,
+            fontWeight: 600,
+            fontSize: 20,
+            color: "#333",
+          }}
+        >
+          Time spent on each event
+        </h3>
         <BarGraph stats={stats?.time_spent_stats} />
       </div>
 
