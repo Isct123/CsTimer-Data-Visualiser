@@ -7,7 +7,7 @@ import features.most_solves_in_a_day as most_solves_in_a_day
 import shutil
 import os
 import features.longest_cubing_period as longest_cubing_period
-import plot_improvement
+import features.plot_improvement as plot_improvement
 
 app = FastAPI()
 
