@@ -7,8 +7,9 @@ def time_spent_breakup(sessions = pf.load_all_sessions(filepath="data/suku.txt")
     Args:
         cubing_periods (list): List of CubingPeriod objects containing solves.
     """
+    cubing_periods = []
     for s in sessions:
-        cubing_periods = pf.get_cubing_periods(s)
+        cubing_periods += pf.get_cubing_periods(s)
     event_times = {}
     cstimer_event_map = {
         "3x3": "3x3x3 Rubik's Cube",
