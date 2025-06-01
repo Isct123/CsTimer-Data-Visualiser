@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import features.time_spent_cubing as time_spent_cubing
 import features.monthly_breakdown as monthly_breakdown
 import features.max_time_spent_cubing_in_a_day as max_time_spent_cubing_in_a_day
+import features.most_solves_in_a_day as most_solves_in_a_day
 import shutil
 import os
 import features.longest_cubing_period as longest_cubing_period
@@ -42,6 +43,8 @@ async def upload_solves(file: UploadFile = File(...)):
     time_spent_cubing_stats = time_spent_cubing.time_spent_breakup(sessions)
     longest_period, max_duration_hours = longest_cubing_period.longest_cubing_period(sessions)
     max_date, max_time_hours = max_time_spent_cubing_in_a_day.max_time_spent_cubing_in_day(sessions)
+    max_solves_date, max_solves = most_solves_in_a_day.most_solves_in_a_day(sessions)
+    
 
     #TODO: Format the response string to be more attractive.
     response_str = (
@@ -67,6 +70,7 @@ async def upload_solves(file: UploadFile = File(...)):
         "time_spent_stats": time_spent_cubing_stats,
         "longest_cubing_period_stats": response_str,
         "max_time_spent_cubing_in_a_day_stats": f"{max_time_hours:.2f} hours on {max_date}",
+        "most_solves_in_a_day_stats": f"Day with the most solves: {max_solves_date} with {max_solves} solves",
         #Add other feature stats here as needed
     }
     #print(time_spent_cubing_stats)

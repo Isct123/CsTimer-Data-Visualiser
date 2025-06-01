@@ -1,13 +1,13 @@
 import utils.preprocess_solves as pf
 
-def most_solves_in_a_day(cubing_periods):
+def most_solves_in_a_day(sessions):
     """Calculate the day with the most solves from the provided cubing periods.
 
     Args:
         cubing_periods (list): List of CubingPeriod objects containing solves.
     """
     daily_solve_count = {}
-
+    cubing_periods = pf.load_all_cubing_periods(sessions)
     for period in cubing_periods:
         date = period.solves[0].date.split(" ")[0]  # extract only the date part "YYYY-MM-DD"
         solve_count = len(period.solves)
