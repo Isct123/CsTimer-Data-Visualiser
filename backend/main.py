@@ -1,14 +1,14 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-import features.time_spent_cubing as time_spent_cubing
-import features.monthly_breakdown as monthly_breakdown
-import features.max_time_spent_cubing_in_a_day as max_time_spent_cubing_in_a_day
-import features.most_solves_in_a_day as most_solves_in_a_day
+import time_spent_cubing as time_spent_cubing
+import monthly_breakdown as monthly_breakdown
+import max_time_spent_cubing_in_a_day as max_time_spent_cubing_in_a_day
+import most_solves_in_a_day as most_solves_in_a_day
 import shutil
 import os
-import features.longest_cubing_period as longest_cubing_period
-import features.plot_improvement as plot_improvement
-import features.pbs_per_day as pbs_per_day
+import longest_cubing_period as longest_cubing_period
+import plot_improvement as plot_improvement
+import pbs_per_day as pbs_per_day
 
 app = FastAPI()
 
@@ -34,7 +34,7 @@ async def upload_solves(file: UploadFile = File(...)):
     
     # Now, load and process this file with your feature modules
     # For example, you can import your preprocessing function here
-    from utils.preprocess_solves import load_all_sessions
+    from features.utils.preprocess_solves import load_all_sessions
 
 
     sessions = load_all_sessions(file_location)

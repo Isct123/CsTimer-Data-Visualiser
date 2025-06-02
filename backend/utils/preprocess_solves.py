@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+import utils.scramble_codes as sc
 
 class Solve:
     def __init__(self, time, date, scramble, penalty, comment):
@@ -122,7 +123,7 @@ def load_all_sessions(filepath):
         session = Session(
             name=f"Session {name}",
             session_id=int(session_id_str),
-            scramble_event=scramble_event,
+            scramble_event=sc.get_scramble_name(scramble_event),
             solves=solves,
             multiple_events=False
         )
