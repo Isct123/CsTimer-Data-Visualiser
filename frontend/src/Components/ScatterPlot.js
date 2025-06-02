@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
-  ScatterChart,
-  Scatter,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -10,38 +10,55 @@ import {
 } from "recharts";
 
 const ScatterPlot = ({ dataDict }) => {
-  // Convert dictionary to array of objects for Recharts
-  const data = Object.keys(dataDict).map((key) => ({
-    x: key,
-    y: dataDict[key],
-  }));
+  // Transform and sort data by key (assuming keys are numeric or sortable strings)
+  const data = useMemo(() => {
+    if (!dataDict || typeof dataDict !== "object") return [];
+    return Object.entries(dataDict)
+      .map(([x, y]) => ({ x, y: Number(y) }))
+      .sort((a, b) => (a.x > b.x ? 1 : -1));
+  }, [dataDict]);
 
   return (
     <ResponsiveContainer
       width="100%"
       height={400}
     >
-      <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-        <CartesianGrid />
+      <LineChart
+        data={data}
+        margin={{ top: 20, right: 20, bottom: 40, left: 40 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
         <XAxis
           dataKey="x"
           type="category"
           name="Key"
-          label={{ value: "Keys", position: "insideBottom", offset: -5 }}
+          label={{ value: "Keys", position: "insideBottom", offset: -10 }}
+          angle={-45}
+          textAnchor="end"
+          interval={0}
+          height={60}
         />
         <YAxis
           dataKey="y"
           type="number"
           name="Value"
-          label={{ value: "Values", angle: -90, position: "insideLeft" }}
+          label={{
+            value: "Values",
+            angle: -90,
+            position: "insideLeft",
+            offset: 10,
+          }}
         />
-        <Tooltip cursor={{ strokeDasharray: "3 3" }} />
-        <Scatter
-          name="Data"
-          data={data}
-          fill="#8884d8"
+        <Tooltip />
+        <Line
+          type="monotone"
+          dataKey="y"
+          stroke="#8884d8"
+          strokeWidth={2}
+          dot={false} // No dots at each point
+          isAnimationActive={false} // Disable animation for performance
         />
-      </ScatterChart>
+      </LineChart>
     </ResponsiveContainer>
   );
 };

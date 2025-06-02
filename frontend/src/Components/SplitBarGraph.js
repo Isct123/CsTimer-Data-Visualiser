@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -10,34 +12,34 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Color palette
 const COLORS = [
-  "#FF6B6B",
-  "#FFD93D",
-  "#6BCB77",
-  "#4D96FF",
-  "#FF6F91",
-  "#6A4C93",
-  "#43E6FC",
-  "#FFB26B",
-  "#A3FFD6",
-  "#FF61A6",
+  "#8884d8",
+  "#82ca9d",
+  "#ffc658",
+  "#ff7f50",
+  "#a4de6c",
+  "#d0ed57",
+  "#8dd1e1",
+  "#ffbb28",
+  "#ff8042",
+  "#00C49F",
 ];
 
-function transformData(monthlyStats) {
-  const eventsSet = new Set();
-  Object.values(monthlyStats).forEach((eventData) => {
-    Object.keys(eventData).forEach((event) => eventsSet.add(event));
+// Transform data function (non-hook, synchronous)
+function transformData(stats) {
+  if (!stats) return { data: [], allEvents: [] };
+
+  const allEventsSet = new Set();
+  const data = Object.entries(stats).map(([month, events]) => {
+    const dataEntry = { month };
+    for (const [event, value] of Object.entries(events)) {
+      dataEntry[event] = value;
+      allEventsSet.add(event);
+    }
+    return dataEntry;
   });
-  const allEvents = Array.from(eventsSet);
-  const data = Object.entries(monthlyStats).map(([month, eventData]) => {
-    const entry = { month };
-    allEvents.forEach((event) => {
-      entry[event] = eventData[event] || 0;
-    });
-    return entry;
-  });
-  return { data, allEvents };
+
+  return { data, allEvents: Array.from(allEventsSet) };
 }
 
 export default function SplitBarGraph({ stats }) {
@@ -81,6 +83,9 @@ export default function SplitBarGraph({ stats }) {
         <BarChart
           data={data}
           margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+          barCategoryGap="20%"
+          barGap={4}
+          maxBarSize={60}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis

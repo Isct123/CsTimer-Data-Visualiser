@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ResponsiveContainer,
   ScatterChart,
@@ -13,12 +13,15 @@ import {
 const parseDate = (dateStr) => new Date(dateStr);
 
 const DotPlot = ({ data, title = "", ylabel = "", xlabel = "Date" }) => {
-  if (!data || typeof data !== "object") return null;
+  const plotData = useMemo(() => {
+    if (!data || typeof data !== "object") return [];
+    return Object.entries(data).map(([timestamp, value]) => ({
+      date: parseDate(timestamp).getTime(),
+      value: parseFloat(value),
+    }));
+  }, [data]);
 
-  const plotData = Object.entries(data).map(([timestamp, value]) => ({
-    date: parseDate(timestamp).getTime(),
-    value: parseFloat(value),
-  }));
+  if (!data || typeof data !== "object") return null;
 
   return (
     <div style={{ width: "100%", height: "450px", padding: "1rem 0" }}>
@@ -41,7 +44,7 @@ const DotPlot = ({ data, title = "", ylabel = "", xlabel = "Date" }) => {
             dataKey="value"
             name={ylabel}
             unit="s"
-            allowDecimals={true}
+            allowDecimals
           />
           <Tooltip
             formatter={(value) => [`${value.toFixed(2)}s`, ylabel]}

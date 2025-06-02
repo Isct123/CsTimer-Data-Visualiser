@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import BarGraph from "./Components/BarGraph";
 import SplitBarGraph from "./Components/SplitBarGraph";
 import DotPlot from "./Components/DotPlot";
@@ -6,12 +6,22 @@ import ScatterPlot from "./Components/ScatterPlot";
 
 export default function App() {
   const [file, setFile] = useState(null);
-  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Splitting stats into separate states
+  const [monthlyStats, setMonthlyStats] = useState(null);
+  const [timeSpentStats, setTimeSpentStats] = useState(null);
+  const [pbStats, setPbStats] = useState(null);
+  const [ao100Progression, setAo100Progression] = useState(null);
+  const [ao100PbProgression, setAo100PbProgression] = useState(null);
+  const [longestPeriod, setLongestPeriod] = useState(null);
+  const [maxCubingTime, setMaxCubingTime] = useState(null);
+  const [mostSolvesDay, setMostSolvesDay] = useState(null);
+  const [mostPbsDay, setMostPbsDay] = useState(null);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
-  const handleUpload = async () => {
+  const handleUpload = useCallback(async () => {
     if (!file) {
       alert("Please select a file first!");
       return;
@@ -27,13 +37,23 @@ export default function App() {
       });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
-      setStats(data);
+
+      // Store individual slices of data
+      setMonthlyStats(data.monthly_stats);
+      setTimeSpentStats(data.time_spent_stats);
+      setPbStats(data.pb_stats);
+      setAo100Progression(data.ao100_progression);
+      setAo100PbProgression(data.ao100_pb_progression);
+      setLongestPeriod(data.longest_cubing_period_stats);
+      setMaxCubingTime(data.max_time_spent_cubing_in_a_day_stats);
+      setMostSolvesDay(data.most_solves_in_a_day_stats);
+      setMostPbsDay(data.most_pbs_in_a_day_stats);
     } catch (err) {
       alert(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [file]);
 
   return (
     <div
@@ -128,7 +148,7 @@ export default function App() {
           </button>
         </div>
 
-        {stats && (
+        {monthlyStats && (
           <>
             <h3
               style={{
@@ -140,7 +160,7 @@ export default function App() {
             >
               Monthly Time Breakdown Chart
             </h3>
-            <SplitBarGraph stats={stats.monthly_stats} />
+            <SplitBarGraph stats={monthlyStats} />
 
             <h3
               style={{
@@ -152,26 +172,19 @@ export default function App() {
             >
               Time spent on each event
             </h3>
-            <BarGraph stats={stats.time_spent_stats} />
+            <BarGraph stats={timeSpentStats} />
 
-            <h3>{stats.longest_cubing_period_stats}</h3>
-            <h3>
-              Longest time spent cubing in a day:{" "}
-              {stats.max_time_spent_cubing_in_a_day_stats}
-            </h3>
-            <h3>{stats.most_solves_in_a_day_stats}</h3>
-            <h3>{stats.most_pbs_in_a_day_stats}</h3>
+            <h3>{longestPeriod}</h3>
+            <h3>Longest time spent cubing in a day: {maxCubingTime}</h3>
+            <h3>{mostSolvesDay}</h3>
+            <h3>{mostPbsDay}</h3>
+
             <h2>PB Distribution by date</h2>
-            <ScatterPlot dataDict={stats.pb_stats} />
-            <DotPlot
-              data={stats.ao100_progression}
-              title="Ao100 Progression"
-              ylabel="Ao100 Time (s)"
-              xlabel="Date"
-            />
+            <ScatterPlot dataDict={pbStats} />
 
+            <ScatterPlot dataDict={ao100Progression} />
             <DotPlot
-              data={stats.ao100_pb_progression}
+              data={ao100PbProgression}
               title="Ao100 PB Progression"
               ylabel="Ao100 Time (s)"
               xlabel="Date"

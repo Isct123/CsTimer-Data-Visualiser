@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -9,7 +9,20 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// Memoized data transformation function
+export function useBarGraphData(stats) {
+  return useMemo(() => {
+    if (!stats) return [];
+    return Object.entries(stats).map(([month, value]) => ({
+      name: month,
+      value,
+    }));
+  }, [stats]);
+}
+
 export default function BarGraph({ stats }) {
+  const data = useBarGraphData(stats);
+
   if (!stats) {
     return (
       <p
@@ -24,12 +37,6 @@ export default function BarGraph({ stats }) {
       </p>
     );
   }
-
-  // Convert the simplified stats object into an array for Recharts
-  const data = Object.entries(stats).map(([month, value]) => ({
-    name: month,
-    value,
-  }));
 
   return (
     <div
