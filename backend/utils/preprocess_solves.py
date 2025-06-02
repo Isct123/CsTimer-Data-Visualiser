@@ -118,7 +118,7 @@ def load_all_sessions(filepath):
     for session_id_str, metadata in session_data.items():
         session_key = f"session{session_id_str}"
         name = str(metadata.get('name', f'Session {session_id_str}'))
-        scramble_event = metadata.get('opt', {}).get('scrType', '3x3')
+        scramble_event = metadata.get('opt', {}).get('scrType', '333')
         solves = load_solves_for_session(raw_data, session_key)
         session = Session(
             name=f"Session {name}",
@@ -140,6 +140,15 @@ def load_all_cubing_periods(sessions):
         print(session.name)
         cubing_periods.extend(get_cubing_periods(session))
     return cubing_periods
+
+def seconds_to_days_hours_minutes(seconds):
+    """Convert seconds to days, hours, and minutes."""
+    days = seconds // (24 * 3600)
+    seconds %= (24 * 3600)
+    hours = seconds // 3600
+    seconds %= 3600
+    minutes = seconds // 60
+    return days, hours, minutes
 
 if __name__ == "__main__":
     sessions = load_all_sessions("data/sample.txt")

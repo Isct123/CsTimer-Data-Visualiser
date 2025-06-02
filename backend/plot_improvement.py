@@ -1,4 +1,4 @@
-import features.pb_checker as pb_checker
+import pb_checker
 import utils.preprocess_solves as pf
 from datetime import datetime
 import matplotlib.pyplot as plt

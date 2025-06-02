@@ -18,6 +18,8 @@ export default function App() {
   const [maxCubingTime, setMaxCubingTime] = useState(null);
   const [mostSolvesDay, setMostSolvesDay] = useState(null);
   const [mostPbsDay, setMostPbsDay] = useState(null);
+  const [totalSolves, setTotalSolves] = useState(null);
+  const [eventTimes, setEventTimes] = useState(null);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -48,6 +50,9 @@ export default function App() {
       setMaxCubingTime(data.max_time_spent_cubing_in_a_day_stats);
       setMostSolvesDay(data.most_solves_in_a_day_stats);
       setMostPbsDay(data.most_pbs_in_a_day_stats);
+      setTotalSolves(data.total_solves_stats);
+      setEventTimes(data.event_times_stats);
+      alert("File uploaded successfully!");
     } catch (err) {
       alert(err.message);
     } finally {
@@ -178,6 +183,16 @@ export default function App() {
             <h3>Longest time spent cubing in a day: {maxCubingTime}</h3>
             <h3>{mostSolvesDay}</h3>
             <h3>{mostPbsDay}</h3>
+            <h3>Total solves: {totalSolves}</h3>
+            <h3>Time spent solving: {eventTimes}</h3>
+            <h3>
+              Time spent cubing:{" "}
+              {timeSpentStats &&
+                Object.values(timeSpentStats)
+                  .reduce((acc, val) => acc + val, 0)
+                  .toFixed(2)}{" "}
+              hours
+            </h3>
 
             <h2>PB Distribution by date</h2>
             <ScatterPlot dataDict={pbStats} />

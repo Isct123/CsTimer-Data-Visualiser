@@ -9,28 +9,10 @@ def time_spent_breakup(sessions = pf.load_all_sessions(filepath="data/suku.txt")
     """
     cubing_periods = pf.load_all_cubing_periods(sessions)
     event_times = {}
-    cstimer_event_map = {
-        "3x3": "3x3x3 Rubik's Cube",
-        "222so": "2x2x2 Single Official",
-        "333oh": "3x3x3 One-Handed",
-        "333ni": "3x3x3 No Inspection",
-        "skbso": "Skewb Single Official",
-        "sqrs": "Square-1",
-        "pyrso": "Pyraminx Single Official",
-        "444wca": "4x4x4 WCA Official",
-        "333fm": "3x3x3 Fewest Moves",
-        "555wca": "5x5x5 WCA Official",
-        "mgmp": "Megaminx Practice",
-        "2gen": "2-Generator Scramble",
-        "r3ni": "Roux 3x3x3 No Inspection",
-        "ll": "Last Layer Practice",
-        "easyxc": "Easy Cross Practice",
-        "r3": "Roux 3x3x3 Practice"
-    }
 
     for period in cubing_periods:
         local_total = period.time_spent() / 60  # convert minutes to seconds
-        event = cstimer_event_map.get(period.scramble_event, period.scramble_event)
+        event = period.scramble_event
         if event not in event_times:
             event_times[event] = 0
         event_times[event] += local_total

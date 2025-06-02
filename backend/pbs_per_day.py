@@ -1,6 +1,5 @@
 import utils.preprocess_solves as pf
-import features.pb_checker as pb_checker
-import features.plot_improvement as plot_imp
+import pb_checker
 from datetime import datetime
 import matplotlib.pyplot as plt
 

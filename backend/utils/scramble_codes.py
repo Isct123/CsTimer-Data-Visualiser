@@ -303,7 +303,7 @@ scrdata = [
 code_dict = {}
 for i in scrdata:
     for j in i[1]:
-        code_dict[j[1]] = i[0] + j[0]
+        code_dict[j[1]] = i[0] + " " + j[0]
 
 def get_scramble_name(code):
     """

@@ -9,6 +9,8 @@ import os
 import longest_cubing_period as longest_cubing_period
 import plot_improvement as plot_improvement
 import pbs_per_day as pbs_per_day
+import total_time_spent_solving as total_time_spent_solving
+
 
 app = FastAPI()
 
@@ -34,7 +36,7 @@ async def upload_solves(file: UploadFile = File(...)):
     
     # Now, load and process this file with your feature modules
     # For example, you can import your preprocessing function here
-    from features.utils.preprocess_solves import load_all_sessions
+    from utils.preprocess_solves import load_all_sessions
 
 
     sessions = load_all_sessions(file_location)
@@ -47,6 +49,7 @@ async def upload_solves(file: UploadFile = File(...)):
     max_date, max_time_hours = max_time_spent_cubing_in_a_day.max_time_spent_cubing_in_day(sessions)
     max_solves_date, max_solves = most_solves_in_a_day.most_solves_in_a_day(sessions)
     date, counts = pbs_per_day.most_pbs_in_a_day(sessions)
+    total_solves, event_times = total_time_spent_solving.time_spent_breakup(sessions)
     most_pbs_in_a_day_stats = f"Date with most PBs: {date}, Counts: {counts[date]}"
     
 
@@ -80,6 +83,8 @@ async def upload_solves(file: UploadFile = File(...)):
         "ao100_pb_progression": ao100_pb_dict,
         "most_pbs_in_a_day_stats": most_pbs_in_a_day_stats,
         "pb_stats":counts,
+        "total_solves_stats": total_solves,
+        "event_times_stats": event_times,
         #Add other feature stats here as needed
     }
     #print(time_spent_cubing_stats)
