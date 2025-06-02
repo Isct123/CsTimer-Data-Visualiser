@@ -8,6 +8,7 @@ import shutil
 import os
 import features.longest_cubing_period as longest_cubing_period
 import features.plot_improvement as plot_improvement
+import features.pbs_per_day as pbs_per_day
 
 app = FastAPI()
 
@@ -45,6 +46,8 @@ async def upload_solves(file: UploadFile = File(...)):
     longest_period, max_duration_hours = longest_cubing_period.longest_cubing_period(sessions)
     max_date, max_time_hours = max_time_spent_cubing_in_a_day.max_time_spent_cubing_in_day(sessions)
     max_solves_date, max_solves = most_solves_in_a_day.most_solves_in_a_day(sessions)
+    date, counts = pbs_per_day.most_pbs_in_a_day(sessions)
+    most_pbs_in_a_day_stats = f"Date with most PBs: {date}, Counts: {counts[date]}"
     
 
     #TODO: Format the response string to be more attractive.
@@ -75,6 +78,8 @@ async def upload_solves(file: UploadFile = File(...)):
         "most_solves_in_a_day_stats": f"Day with the most solves: {max_solves_date} with {max_solves} solves",
         "ao100_progression": ao100_dict,
         "ao100_pb_progression": ao100_pb_dict,
+        "most_pbs_in_a_day_stats": most_pbs_in_a_day_stats,
+        "pb_stats":counts,
         #Add other feature stats here as needed
     }
     #print(time_spent_cubing_stats)

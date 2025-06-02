@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import BarGraph from "./Components/BarGraph";
 import SplitBarGraph from "./Components/SplitBarGraph";
 import DotPlot from "./Components/DotPlot";
+import ScatterPlot from "./Components/ScatterPlot";
 
 export default function App() {
   const [file, setFile] = useState(null);
@@ -154,15 +155,21 @@ export default function App() {
             <BarGraph stats={stats.time_spent_stats} />
 
             <h3>{stats.longest_cubing_period_stats}</h3>
-            <h3>{stats.max_time_spent_cubing_in_a_day_stats}</h3>
+            <h3>
+              Longest time spent cubing in a day:{" "}
+              {stats.max_time_spent_cubing_in_a_day_stats}
+            </h3>
             <h3>{stats.most_solves_in_a_day_stats}</h3>
-
+            <h3>{stats.most_pbs_in_a_day_stats}</h3>
+            <h2>PB Distribution by date</h2>
+            <ScatterPlot dataDict={stats.pb_stats} />
             <DotPlot
               data={stats.ao100_progression}
               title="Ao100 Progression"
               ylabel="Ao100 Time (s)"
               xlabel="Date"
             />
+
             <DotPlot
               data={stats.ao100_pb_progression}
               title="Ao100 PB Progression"
