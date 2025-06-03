@@ -134,10 +134,10 @@ def load_all_sessions(filepath):
 def load_all_cubing_periods(sessions):
     """Load all cubing periods from the provided sessions."""
     cubing_periods = []
-    print(sessions)
-    print(sessions[0])
+    #print(sessions)
+    #print(sessions[0])
     for session in sessions:
-        print(session.name)
+        #print(session.name)
         cubing_periods.extend(get_cubing_periods(session))
     return cubing_periods
 
