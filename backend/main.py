@@ -10,6 +10,7 @@ import longest_cubing_period as longest_cubing_period
 import plot_improvement as plot_improvement
 import pbs_per_day as pbs_per_day
 import total_time_spent_solving as total_time_spent_solving
+import solve_level as solve_level
 
 
 app = FastAPI()
@@ -72,6 +73,7 @@ async def upload_solves(file: UploadFile = File(...)):
     # feature2_stats = feature2.process(sessions)
     ao100_dict = plot_improvement.create_avg_dict(sessions[0], 100)
     ao100_pb_dict = plot_improvement.create_pb_dict(sessions[0], 100)
+    solve_levels = solve_level.solve_levels_from_sessions(sessions)
     # Return a JSON response with all stats
     response = {
         "monthly_stats": monthly_stats,
@@ -85,6 +87,7 @@ async def upload_solves(file: UploadFile = File(...)):
         "pb_stats":counts,
         "total_solves_stats": total_solves,
         "event_times_stats": event_times,
+        "solve_levels_stats": solve_levels,
         #Add other feature stats here as needed
     }
     #print(time_spent_cubing_stats)

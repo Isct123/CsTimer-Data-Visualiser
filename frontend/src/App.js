@@ -3,6 +3,7 @@ import BarGraph from "./Components/BarGraph";
 import SplitBarGraph from "./Components/SplitBarGraph";
 import DotPlot from "./Components/DotPlot";
 import ScatterPlot from "./Components/ScatterPlot";
+import SolveLevelChart from "./Components/SolveLevelChart";
 
 export default function App() {
   const [file, setFile] = useState(null);
@@ -20,6 +21,7 @@ export default function App() {
   const [mostPbsDay, setMostPbsDay] = useState(null);
   const [totalSolves, setTotalSolves] = useState(null);
   const [eventTimes, setEventTimes] = useState(null);
+  const [solveLevel, setSolveLevel] = useState(null);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -52,6 +54,8 @@ export default function App() {
       setMostPbsDay(data.most_pbs_in_a_day_stats);
       setTotalSolves(data.total_solves_stats);
       setEventTimes(data.event_times_stats);
+      setSolveLevel(data.solve_levels_stats);
+
       alert("File uploaded successfully!");
     } catch (err) {
       alert(err.message);
@@ -204,6 +208,7 @@ export default function App() {
               ylabel="Ao100 Time (s)"
               xlabel="Date"
             />
+            <SolveLevelChart levels={solveLevel} />
           </>
         )}
 

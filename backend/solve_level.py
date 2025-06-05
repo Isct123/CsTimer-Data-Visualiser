@@ -19,10 +19,11 @@ def percentile(solve, cubing_period):
 
     return percentile
 
-def solve_levels_from_period(cubing_periods):
+def solve_levels_from_sessions(cubing_sessions):
     """Returns a 10-index list where each index is the average percentile of the corresponding 10% chunk across all cubing periods."""
 
     # Initialize a list of 10 lists to hold chunk percentiles
+    cubing_periods = pf.load_all_cubing_periods(cubing_sessions)
     chunk_percentiles = [[] for _ in range(10)]
 
     for cubing_period in cubing_periods:
