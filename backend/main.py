@@ -11,6 +11,7 @@ import plot_improvement as plot_improvement
 import pbs_per_day as pbs_per_day
 import total_time_spent_solving as total_time_spent_solving
 import solve_level as solve_level
+import average_period_duration as average_period_duration
 
 
 app = FastAPI()
@@ -52,6 +53,7 @@ async def upload_solves(file: UploadFile = File(...)):
     date, counts = pbs_per_day.most_pbs_in_a_day(sessions)
     total_solves, event_times = total_time_spent_solving.time_spent_breakup(sessions)
     most_pbs_in_a_day_stats = f"Date with most PBs: {date}, Counts: {counts[date]}"
+    average_period_duration_stats = average_period_duration.average_time_per_day(sessions)
     
 
     #TODO: Format the response string to be more attractive.
@@ -88,7 +90,9 @@ async def upload_solves(file: UploadFile = File(...)):
         "total_solves_stats": total_solves,
         "event_times_stats": event_times,
         "solve_levels_stats": solve_levels,
+        "average_period_duration_stats": f"Average time spent per day: {average_period_duration_stats:.2f} minutes",
         #Add other feature stats here as needed
     }
     #print(time_spent_cubing_stats)
+    print(response)
     return response

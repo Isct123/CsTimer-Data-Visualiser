@@ -22,6 +22,7 @@ export default function App() {
   const [totalSolves, setTotalSolves] = useState(null);
   const [eventTimes, setEventTimes] = useState(null);
   const [solveLevel, setSolveLevel] = useState(null);
+  const [averagePeriodDuration, setAveragePeriodDuration] = useState(null);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -55,6 +56,7 @@ export default function App() {
       setTotalSolves(data.total_solves_stats);
       setEventTimes(data.event_times_stats);
       setSolveLevel(data.solve_levels_stats);
+      setAveragePeriodDuration(data.average_period_duration_stats);
 
       alert("File uploaded successfully!");
     } catch (err) {
@@ -189,6 +191,7 @@ export default function App() {
             <h3>{mostPbsDay}</h3>
             <h3>Total solves: {totalSolves}</h3>
             <h3>Time spent solving: {eventTimes}</h3>
+            <h3>{averagePeriodDuration}</h3>
             <h3>
               Time spent cubing:{" "}
               {timeSpentStats &&
