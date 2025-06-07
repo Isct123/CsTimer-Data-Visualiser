@@ -23,6 +23,8 @@ export default function App() {
   const [eventTimes, setEventTimes] = useState(null);
   const [solveLevel, setSolveLevel] = useState(null);
   const [averagePeriodDuration, setAveragePeriodDuration] = useState(null);
+  const [daysDict, setDaysDict] = useState({});
+  const [hoursDict, setHoursDict] = useState({});
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -57,6 +59,8 @@ export default function App() {
       setEventTimes(data.event_times_stats);
       setSolveLevel(data.solve_levels_stats);
       setAveragePeriodDuration(data.average_period_duration_stats);
+      setDaysDict(data.days_dict_stats);
+      setHoursDict(data.hours_dict_stats);
 
       alert("File uploaded successfully!");
     } catch (err) {
@@ -212,6 +216,8 @@ export default function App() {
               xlabel="Date"
             />
             <SolveLevelChart levels={solveLevel} />
+            <BarGraph stats={daysDict} />
+            <BarGraph stats={hoursDict} />
           </>
         )}
 
