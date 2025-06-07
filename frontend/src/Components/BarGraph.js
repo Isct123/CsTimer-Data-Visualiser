@@ -1,28 +1,17 @@
-import React, { useMemo } from "react";
+import React from "react";
+import { Bar } from "react-chartjs-2";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
   Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+  Legend,
+} from "chart.js";
 
-// Memoized data transformation function
-export function useBarGraphData(stats) {
-  return useMemo(() => {
-    if (!stats) return [];
-    return Object.entries(stats).map(([month, value]) => ({
-      name: month,
-      value,
-    }));
-  }, [stats]);
-}
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function BarGraph({ stats }) {
-  const data = useBarGraphData(stats);
-
   if (!stats) {
     return (
       <p
@@ -37,6 +26,83 @@ export default function BarGraph({ stats }) {
       </p>
     );
   }
+
+  const labels = Object.keys(stats);
+  const dataValues = Object.values(stats);
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: "Hours",
+        data: dataValues,
+        backgroundColor: "#4D96FF",
+        borderRadius: 4,
+      },
+    ],
+  };
+
+  const options = {
+    maintainAspectRatio: false,
+    responsive: true,
+    scales: {
+      x: {
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+          font: {
+            weight: "500",
+            size: 14,
+          },
+        },
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Hours",
+          font: {
+            weight: "600",
+            size: 14,
+          },
+        },
+        ticks: {
+          font: {
+            weight: "500",
+            size: 14,
+          },
+        },
+        grid: {
+          borderDash: [3, 3],
+        },
+      },
+    },
+    plugins: {
+      tooltip: {
+        backgroundColor: "#fff",
+        titleColor: "#000", // Black title text
+        bodyColor: "#000", // Black body text
+        titleFont: { weight: "600" },
+        bodyFont: { weight: "500" },
+        padding: 8,
+        borderColor: "#eee",
+        borderWidth: 1,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        callbacks: {
+          label: (context) => {
+            const val = context.parsed.y ?? context.parsed;
+            return `${val} hours`;
+          },
+        },
+      },
+      legend: {
+        display: false,
+      },
+    },
+  };
 
   return (
     <div
@@ -54,49 +120,12 @@ export default function BarGraph({ stats }) {
         marginBottom: 40,
       }}
     >
-      <ResponsiveContainer
-        width="100%"
-        height={380}
-      >
-        <BarChart
+      <div style={{ width: "100%", height: 380 }}>
+        <Bar
           data={data}
-          margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="name"
-            angle={-45}
-            textAnchor="end"
-            interval={0}
-            height={60}
-            style={{ fontWeight: 500, fontSize: 14 }}
-          />
-          <YAxis
-            label={{
-              value: "Hours",
-              angle: -90,
-              position: "insideLeft",
-              style: { fontWeight: 600 },
-            }}
-            style={{ fontWeight: 500, fontSize: 14 }}
-          />
-          <Tooltip
-            formatter={(value) => `${value} hours`}
-            contentStyle={{
-              background: "#fff",
-              borderRadius: 8,
-              border: "1px solid #eee",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-              fontWeight: 500,
-            }}
-          />
-          <Bar
-            dataKey="value"
-            fill="#4D96FF"
-            radius={[4, 4, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
+          options={options}
+        />
+      </div>
     </div>
   );
 }

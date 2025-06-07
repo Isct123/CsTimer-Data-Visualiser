@@ -1,16 +1,25 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
+import { Bar } from "react-chartjs-2";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-} from "recharts";
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const COLORS = [
   "#8884d8",
@@ -25,21 +34,29 @@ const COLORS = [
   "#00C49F",
 ];
 
-// Transform data function (non-hook, synchronous)
 function transformData(stats) {
-  if (!stats) return { data: [], allEvents: [] };
+  if (!stats) return { labels: [], datasets: [] };
 
+  // Extract all event names
   const allEventsSet = new Set();
-  const data = Object.entries(stats).map(([month, events]) => {
-    const dataEntry = { month };
-    for (const [event, value] of Object.entries(events)) {
-      dataEntry[event] = value;
-      allEventsSet.add(event);
-    }
-    return dataEntry;
+  Object.values(stats).forEach((events) => {
+    Object.keys(events).forEach((event) => allEventsSet.add(event));
   });
+  const allEvents = Array.from(allEventsSet);
 
-  return { data, allEvents: Array.from(allEventsSet) };
+  // Extract months (x-axis labels)
+  const labels = Object.keys(stats);
+
+  // Create datasets for each event
+  const datasets = allEvents.map((event, idx) => ({
+    label: event,
+    data: labels.map((month) => stats[month][event] ?? 0),
+    backgroundColor: COLORS[idx % COLORS.length],
+    borderRadius: 4,
+    stack: "stack1",
+  }));
+
+  return { labels, datasets };
 }
 
 export default function SplitBarGraph({ stats }) {
@@ -58,7 +75,64 @@ export default function SplitBarGraph({ stats }) {
     );
   }
 
-  const { data, allEvents } = transformData(stats);
+  const chartData = transformData(stats);
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
+    scales: {
+      x: {
+        stacked: true,
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+          font: { weight: "500", size: 14 },
+        },
+        grid: { display: false },
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Hours",
+          font: { weight: "600", size: 14 },
+        },
+        ticks: {
+          font: { weight: "500", size: 14 },
+        },
+        grid: { borderDash: [3, 3] },
+      },
+    },
+    plugins: {
+      tooltip: {
+        backgroundColor: "#fff",
+        titleColor: "#000",
+        bodyColor: "#000",
+        titleFont: { weight: "600" },
+        bodyFont: { weight: "500" },
+        padding: 8,
+        borderColor: "#eee",
+        borderWidth: 1,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        callbacks: {
+          label: (context) =>
+            `${context.dataset.label}: ${context.parsed.y} hours`,
+        },
+      },
+      legend: {
+        position: "top",
+        labels: { font: { weight: "500", size: 14 } },
+      },
+      title: {
+        display: false,
+      },
+    },
+  };
 
   return (
     <div
@@ -70,66 +144,14 @@ export default function SplitBarGraph({ stats }) {
         borderRadius: 12,
         boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
         padding: 16,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         marginBottom: 40,
       }}
     >
-      <ResponsiveContainer
-        width="100%"
+      <Bar
+        data={chartData}
+        options={options}
         height={380}
-      >
-        <BarChart
-          data={data}
-          margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
-          barCategoryGap="20%"
-          barGap={4}
-          maxBarSize={60}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="month"
-            angle={-45}
-            textAnchor="end"
-            interval={0}
-            height={60}
-            style={{ fontWeight: 500, fontSize: 14 }}
-          />
-          <YAxis
-            label={{
-              value: "Hours",
-              angle: -90,
-              position: "insideLeft",
-              style: { fontWeight: 600 },
-            }}
-            style={{ fontWeight: 500, fontSize: 14 }}
-          />
-          <Tooltip
-            contentStyle={{
-              background: "#fff",
-              borderRadius: 8,
-              border: "1px solid #eee",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-              fontWeight: 500,
-            }}
-          />
-          <Legend
-            verticalAlign="top"
-            height={36}
-            wrapperStyle={{ fontWeight: 500, fontSize: 14 }}
-          />
-          {allEvents.map((event, idx) => (
-            <Bar
-              key={event}
-              dataKey={event}
-              stackId="a"
-              fill={COLORS[idx % COLORS.length]}
-              radius={[4, 4, 0, 0]}
-            />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+      />
     </div>
   );
 }
