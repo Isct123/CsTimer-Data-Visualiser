@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import BarGraph from "./Components/BarGraph";
 import SplitBarGraph from "./Components/SplitBarGraph";
 import DotPlot from "./Components/DotPlot";
@@ -9,7 +9,6 @@ export default function App() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Splitting stats into separate states
   const [monthlyStats, setMonthlyStats] = useState(null);
   const [timeSpentStats, setTimeSpentStats] = useState(null);
   const [pbStats, setPbStats] = useState(null);
@@ -45,7 +44,6 @@ export default function App() {
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
 
-      // Store individual slices of data
       setMonthlyStats(data.monthly_stats);
       setTimeSpentStats(data.time_spent_stats);
       setPbStats(data.pb_stats);
@@ -77,17 +75,16 @@ export default function App() {
         width: "100vw",
         background: "linear-gradient(120deg, #f6d365 0%, #fda085 100%)",
         fontFamily: "'Segoe UI', 'Roboto', 'Arial', sans-serif",
-        margin: 0,
-        padding: 0,
-        boxSizing: "border-box",
         overflowX: "hidden",
+        paddingBottom: 40,
       }}
     >
+      {/* Header */}
       <header
         style={{
           background: "#fff",
           boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          padding: "24px 0 16px 0",
+          padding: "24px 0 16px",
           textAlign: "center",
           fontWeight: 700,
           fontSize: 32,
@@ -99,12 +96,12 @@ export default function App() {
         Yearly Roundup: Upload Solve Stats
       </header>
 
+      {/* File Upload Section */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          width: "100%",
         }}
       >
         <h2 style={{ fontWeight: 600, fontSize: 24, marginBottom: 24 }}>
@@ -115,7 +112,7 @@ export default function App() {
           style={{
             display: "flex",
             gap: 16,
-            marginBottom: 24,
+            marginBottom: 32,
             justifyContent: "center",
             flexWrap: "wrap",
           }}
@@ -163,66 +160,100 @@ export default function App() {
           </button>
         </div>
 
+        {/* Visualization Section */}
         {monthlyStats && (
-          <>
-            <h3
+          <div style={{ width: "95%", maxWidth: 1000 }}>
+            <Section title="Monthly Time Breakdown Chart">
+              <SplitBarGraph stats={monthlyStats} />
+            </Section>
+
+            <Section title="Time Spent on Each Event">
+              <BarGraph stats={timeSpentStats} />
+            </Section>
+
+            <Section title="Interesting Stats">
+              <h4>{longestPeriod}</h4>
+              <h4>Longest time spent cubing in a day: {maxCubingTime}</h4>
+              <h4>{mostSolvesDay}</h4>
+              <h4>{mostPbsDay}</h4>
+              <h4>Total solves: {totalSolves}</h4>
+              <h4>Time spent solving: {eventTimes}</h4>
+              <h4>{averagePeriodDuration}</h4>
+              <h4>
+                Total time cubing:{" "}
+                {timeSpentStats &&
+                  Object.values(timeSpentStats)
+                    .reduce((acc, val) => acc + val, 0)
+                    .toFixed(2)}{" "}
+                hours
+              </h4>
+            </Section>
+
+            <Section title="PB Distribution by Date">
+              <ScatterPlot dataDict={pbStats} />
+            </Section>
+
+            <Section title="Ao100 Progression">
+              <ScatterPlot dataDict={ao100Progression} />
+            </Section>
+
+            <Section>
+              <DotPlot
+                data={ao100PbProgression}
+                title="Ao100 PB Progression"
+                ylabel="Ao100 Time (s)"
+                xlabel="Date"
+              />
+            </Section>
+
+            <Section title="Solve Level Percentile by Decile">
+              <SolveLevelChart levels={solveLevel} />
+            </Section>
+
+            <div
               style={{
-                marginTop: 40,
-                marginBottom: 20,
-                fontWeight: 600,
-                fontSize: 20,
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "40px",
+                justifyContent: "center",
+                marginTop: 60,
               }}
             >
-              Monthly Time Breakdown Chart
-            </h3>
-            <SplitBarGraph stats={monthlyStats} />
-
-            <h3
-              style={{
-                marginTop: 40,
-                marginBottom: 20,
-                fontWeight: 600,
-                fontSize: 20,
-              }}
-            >
-              Time spent on each event
-            </h3>
-            <BarGraph stats={timeSpentStats} />
-
-            <h3>{longestPeriod}</h3>
-            <h3>Longest time spent cubing in a day: {maxCubingTime}</h3>
-            <h3>{mostSolvesDay}</h3>
-            <h3>{mostPbsDay}</h3>
-            <h3>Total solves: {totalSolves}</h3>
-            <h3>Time spent solving: {eventTimes}</h3>
-            <h3>{averagePeriodDuration}</h3>
-            <h3>
-              Time spent cubing:{" "}
-              {timeSpentStats &&
-                Object.values(timeSpentStats)
-                  .reduce((acc, val) => acc + val, 0)
-                  .toFixed(2)}{" "}
-              hours
-            </h3>
-
-            <h2>PB Distribution by date</h2>
-            <ScatterPlot dataDict={pbStats} />
-
-            <ScatterPlot dataDict={ao100Progression} />
-            <DotPlot
-              data={ao100PbProgression}
-              title="Ao100 PB Progression"
-              ylabel="Ao100 Time (s)"
-              xlabel="Date"
-            />
-            <SolveLevelChart levels={solveLevel} />
-            <BarGraph stats={daysDict} />
-            <BarGraph stats={hoursDict} />
-          </>
+              <div style={{ flex: 1, minWidth: 300, maxWidth: 500 }}>
+                <h3 style={{ textAlign: "center", marginBottom: 16 }}>
+                  Activity by Day
+                </h3>
+                <BarGraph stats={daysDict} />
+              </div>
+              <div style={{ flex: 1, minWidth: 300, maxWidth: 500 }}>
+                <h3 style={{ textAlign: "center", marginBottom: 16 }}>
+                  Activity by Hour
+                </h3>
+                <BarGraph stats={hoursDict} />
+              </div>
+            </div>
+          </div>
         )}
-
-        <div style={{ height: 60 }} />
       </div>
     </div>
   );
 }
+
+// Utility section wrapper with spacing and heading
+const Section = ({ title, children }) => (
+  <section style={{ marginTop: 60 }}>
+    {title && (
+      <h3
+        style={{
+          marginBottom: 24,
+          fontWeight: 600,
+          fontSize: 20,
+          textAlign: "center",
+        }}
+      >
+        {title}
+      </h3>
+    )}
+    <div>{children}</div>
+  </section>
+);
