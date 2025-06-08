@@ -4,27 +4,30 @@ import SplitBarGraph from "./Components/SplitBarGraph";
 import DotPlot from "./Components/DotPlot";
 import ScatterPlot from "./Components/ScatterPlot";
 import SolveLevelChart from "./Components/SolveLevelChart";
+import SelectSession from "./Components/SelectSession";
 
 export default function App() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const [monthlyStats, setMonthlyStats] = useState(null);
-  const [timeSpentStats, setTimeSpentStats] = useState(null);
-  const [pbStats, setPbStats] = useState(null);
-  const [ao100Progression, setAo100Progression] = useState(null);
-  const [ao100PbProgression, setAo100PbProgression] = useState(null);
+  // Global stats state
   const [longestPeriod, setLongestPeriod] = useState(null);
   const [maxCubingTime, setMaxCubingTime] = useState(null);
   const [mostSolvesDay, setMostSolvesDay] = useState(null);
   const [mostPbsDay, setMostPbsDay] = useState(null);
   const [totalSolves, setTotalSolves] = useState(null);
   const [eventTimes, setEventTimes] = useState(null);
-  const [solveLevel, setSolveLevel] = useState(null);
   const [averagePeriodDuration, setAveragePeriodDuration] = useState(null);
   const [daysDict, setDaysDict] = useState({});
   const [hoursDict, setHoursDict] = useState({});
   const [consistency, setConsistency] = useState(null);
+  const [pbStats, setPbStats] = useState(null);
+  const [sessionNames, setSessionNames] = useState([]);
+
+  // Session-specific stats
+  const [ao100Progression, setAo100Progression] = useState(null);
+  const [ao100PbProgression, setAo100PbProgression] = useState(null);
+  const [solveLevel, setSolveLevel] = useState(null);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -45,22 +48,18 @@ export default function App() {
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
 
-      setMonthlyStats(data.monthly_stats);
-      setTimeSpentStats(data.time_spent_stats);
-      setPbStats(data.pb_stats);
-      setAo100Progression(data.ao100_progression);
-      setAo100PbProgression(data.ao100_pb_progression);
       setLongestPeriod(data.longest_cubing_period_stats);
       setMaxCubingTime(data.max_time_spent_cubing_in_a_day_stats);
       setMostSolvesDay(data.most_solves_in_a_day_stats);
       setMostPbsDay(data.most_pbs_in_a_day_stats);
       setTotalSolves(data.total_solves_stats);
       setEventTimes(data.event_times_stats);
-      setSolveLevel(data.solve_levels_stats);
       setAveragePeriodDuration(data.average_period_duration_stats);
       setDaysDict(data.days_dict_stats);
       setHoursDict(data.hours_dict_stats);
       setConsistency(data.consistency_stats);
+      setPbStats(data.pb_stats);
+      setSessionNames(data.session_names);
 
       alert("File uploaded successfully!");
     } catch (err) {
@@ -69,6 +68,13 @@ export default function App() {
       setLoading(false);
     }
   }, [file]);
+
+  // Handle when a session is selected (callback from SelectSession)
+  const handleSessionSelect = (sessionData) => {
+    setAo100Progression(sessionData.ao100_progression);
+    setAo100PbProgression(sessionData.ao100_pb_progression);
+    setSolveLevel(sessionData.solve_levels_stats);
+  };
 
   return (
     <div
@@ -162,17 +168,9 @@ export default function App() {
           </button>
         </div>
 
-        {/* Visualization Section */}
-        {monthlyStats && (
+        {/* Display global stats only if data loaded */}
+        {longestPeriod && (
           <div style={{ width: "95%", maxWidth: 1000 }}>
-            <Section title="Monthly Time Breakdown Chart">
-              <SplitBarGraph stats={monthlyStats} />
-            </Section>
-
-            <Section title="Time Spent on Each Event">
-              <BarGraph stats={timeSpentStats} />
-            </Section>
-
             <Section title="Interesting Stats">
               <h4>{longestPeriod}</h4>
               <h4>Longest time spent cubing in a day: {maxCubingTime}</h4>
@@ -183,10 +181,9 @@ export default function App() {
               <h4>{averagePeriodDuration}</h4>
               <h4>
                 Total time cubing:{" "}
-                {timeSpentStats &&
-                  Object.values(timeSpentStats)
-                    .reduce((acc, val) => acc + val, 0)
-                    .toFixed(2)}{" "}
+                {Object.values(hoursDict)
+                  .reduce((acc, val) => acc + val, 0)
+                  .toFixed(2)}{" "}
                 hours
               </h4>
             </Section>
@@ -195,48 +192,44 @@ export default function App() {
               <ScatterPlot dataDict={pbStats} />
             </Section>
 
-            <Section title="Solve Level Percentile by Decile">
-              <SolveLevelChart levels={solveLevel} />
+            <Section title="Activity by Day">
+              <BarGraph stats={daysDict} />
             </Section>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "40px",
-                justifyContent: "center",
-                marginTop: 60,
-              }}
-            >
-              <div style={{ flex: 1, minWidth: 300, maxWidth: 500 }}>
-                <h3 style={{ textAlign: "center", marginBottom: 16 }}>
-                  Activity by Day
-                </h3>
-                <BarGraph stats={daysDict} />
-              </div>
-              <div style={{ flex: 1, minWidth: 300, maxWidth: 500 }}>
-                <h3 style={{ textAlign: "center", marginBottom: 16 }}>
-                  Activity by Hour
-                </h3>
-                <BarGraph stats={hoursDict} />
-              </div>
-            </div>
-
-            <h2>Session/Event Specific Stats:</h2>
-            <Section title="Ao100 Progression">
-              <ScatterPlot dataDict={ao100Progression} />
+            <Section title="Activity by Hour">
+              <BarGraph stats={hoursDict} />
             </Section>
 
-            <Section>
-              <DotPlot
-                data={ao100PbProgression}
-                title="Ao100 PB Progression"
-                ylabel="Ao100 Time (s)"
-                xlabel="Date"
+            <Section title="Consistency Stats">
+              <BarGraph stats={consistency} />
+            </Section>
+
+            <Section title="Session/Event Specific Stats:">
+              <SelectSession
+                session_names={sessionNames}
+                onSessionSelect={handleSessionSelect}
               />
             </Section>
-            <Section title="Consistency Stats">
-              <BarGraph stats={consistency} />{" "}
-            </Section>
+
+            {ao100Progression && (
+              <>
+                <Section title="Ao100 Progression">
+                  <ScatterPlot dataDict={ao100Progression} />
+                </Section>
+
+                <Section title="Ao100 PB Progression">
+                  <DotPlot
+                    data={ao100PbProgression}
+                    title="Ao100 PB Progression"
+                    ylabel="Ao100 Time (s)"
+                    xlabel="Date"
+                  />
+                </Section>
+
+                <Section title="Solve Level Percentile by Decile">
+                  <SolveLevelChart levels={solveLevel} />
+                </Section>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -244,7 +237,6 @@ export default function App() {
   );
 }
 
-// Utility section wrapper with spacing and heading
 const Section = ({ title, children }) => (
   <section style={{ marginTop: 60 }}>
     {title && (
