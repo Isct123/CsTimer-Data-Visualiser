@@ -13,6 +13,7 @@ import total_time_spent_solving as total_time_spent_solving
 import solve_level as solve_level
 import average_period_duration as average_period_duration
 import most_active_time_of_day as most_active_time_of_day
+import consistency as consistency
 
 
 app = FastAPI()
@@ -56,6 +57,7 @@ async def upload_solves(file: UploadFile = File(...)):
     most_pbs_in_a_day_stats = f"Date with most PBs: {date}, Counts: {counts[date]}"
     average_period_duration_stats = average_period_duration.average_time_per_day(sessions)
     days_dict, hours_dict = most_active_time_of_day.cubing_time_stats_dict(sessions)
+    consistency_stats = consistency.consistency(sessions)
     
 
     #TODO: Format the response string to be more attractive.
@@ -95,6 +97,7 @@ async def upload_solves(file: UploadFile = File(...)):
         "average_period_duration_stats": f"Average time spent per day: {average_period_duration_stats:.2f} minutes",
         "days_dict_stats": days_dict,
         "hours_dict_stats": hours_dict,
+        "consistency_stats": consistency_stats,
         #Add other feature stats here as needed
     }
     #print(time_spent_cubing_stats)

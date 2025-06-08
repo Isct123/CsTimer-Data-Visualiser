@@ -24,6 +24,7 @@ export default function App() {
   const [averagePeriodDuration, setAveragePeriodDuration] = useState(null);
   const [daysDict, setDaysDict] = useState({});
   const [hoursDict, setHoursDict] = useState({});
+  const [consistency, setConsistency] = useState(null);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -59,6 +60,7 @@ export default function App() {
       setAveragePeriodDuration(data.average_period_duration_stats);
       setDaysDict(data.days_dict_stats);
       setHoursDict(data.hours_dict_stats);
+      setConsistency(data.consistency_stats);
 
       alert("File uploaded successfully!");
     } catch (err) {
@@ -193,23 +195,9 @@ export default function App() {
               <ScatterPlot dataDict={pbStats} />
             </Section>
 
-            <Section title="Ao100 Progression">
-              <ScatterPlot dataDict={ao100Progression} />
-            </Section>
-
-            <Section>
-              <DotPlot
-                data={ao100PbProgression}
-                title="Ao100 PB Progression"
-                ylabel="Ao100 Time (s)"
-                xlabel="Date"
-              />
-            </Section>
-
             <Section title="Solve Level Percentile by Decile">
               <SolveLevelChart levels={solveLevel} />
             </Section>
-
             <div
               style={{
                 display: "flex",
@@ -232,6 +220,23 @@ export default function App() {
                 <BarGraph stats={hoursDict} />
               </div>
             </div>
+
+            <h2>Session/Event Specific Stats:</h2>
+            <Section title="Ao100 Progression">
+              <ScatterPlot dataDict={ao100Progression} />
+            </Section>
+
+            <Section>
+              <DotPlot
+                data={ao100PbProgression}
+                title="Ao100 PB Progression"
+                ylabel="Ao100 Time (s)"
+                xlabel="Date"
+              />
+            </Section>
+            <Section title="Consistency Stats">
+              <BarGraph stats={consistency} />{" "}
+            </Section>
           </div>
         )}
       </div>
