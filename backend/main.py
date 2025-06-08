@@ -62,10 +62,9 @@ async def upload_solves(file: UploadFile = File(...)):
 
     global_stats_cache = {
         "longest_cubing_period_stats": (
-            f"Longest cubing period: {longest_period.session_name} with {len(longest_period.solves)} solves\n"
+            f"Longest time spent cubing at a stretch: {longest_period.session_name} with {len(longest_period.solves)} solves\n"
             f"Duration: {max_duration_hours:.2f} hours\n"
             f"Scramble Event: {longest_period.scramble_event}\n"
-            f"Multiple Events: {longest_period.multiple_events}\n"
             f"Start Date: {longest_period.solves[0].date}\n"
             f"End Date: {longest_period.solves[-1].date}"
         ),
