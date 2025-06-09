@@ -6,7 +6,7 @@ import os
 
 import utils.preprocess_solves as pf
 import monthly_breakdown
-import time_spent_cubing
+#import time_spent_cubing
 import longest_cubing_period
 import max_time_spent_cubing_in_a_day
 import most_solves_in_a_day
@@ -46,6 +46,7 @@ async def upload_solves(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     loaded_sessions = pf.load_all_sessions(file_location)
+    os.remove(file_location) 
 
     if not loaded_sessions:
         raise HTTPException(status_code=400, detail="No sessions found in the uploaded file.")
