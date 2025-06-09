@@ -8,7 +8,7 @@ The project aims to help cubers understand their performance through charts, mod
 
 ## Errors Being Worked On:
 
-- Random difference in production of the graph
+- None right now (luckily)
 
 ## ✅ Features Implemented
 
