@@ -27,6 +27,7 @@ The project aims to help cubers understand their performance through charts, mod
 
 ## 🚧 Features TODO
 
+- [ ] Make the stats rendered server side and use Python only for machine learning models backend.
 - [ ] Solve streaks – longest streaks of sub-X solves
 - [ ] Most frequently occurring solve time
 - [ ] Time spent to reach milestones (single, Ao5, Ao12, etc.)
