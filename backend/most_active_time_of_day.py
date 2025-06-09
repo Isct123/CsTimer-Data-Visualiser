@@ -8,7 +8,7 @@ def cubing_time_stats_dict(sessions):
     time_per_hour = defaultdict(float)     # key: int hour 0-23, value: hours (float)
     time_per_weekday = defaultdict(float)  # key: weekday int (0=Mon), value: hours (float)
     for i in range(0, 24):
-        time_per_hour[i] = 0
+        time_per_hour[i] = 0.00001
 
     for period in cubing_periods:
         if not period.solves:

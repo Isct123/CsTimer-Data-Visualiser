@@ -6,6 +6,10 @@ The project aims to help cubers understand their performance through charts, mod
 
 ---
 
+## Errors Being Worked On:
+
+- Random difference in production of the graph
+
 ## ✅ Features Implemented
 
 - [x] Time spent cubing and session breakdown via pie chart
