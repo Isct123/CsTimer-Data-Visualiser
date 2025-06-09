@@ -239,7 +239,7 @@ export default function App() {
                   />
                 </Section>
 
-                <Section title="Solve Level Percentile by Decile">
+                <Section title="Solve Level Percentile by part of the session- A session is any time spent cubing continuously. Decile- First 10% of solves, etc. (It assumes that two solves 20 minutes apart are part of different sesssions)">
                   <SolveLevelChart levels={solveLevel} />
                 </Section>
               </>
