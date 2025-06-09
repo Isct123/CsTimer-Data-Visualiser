@@ -6,6 +6,7 @@ import ScatterPlot from "./Components/ScatterPlot";
 import SolveLevelChart from "./Components/SolveLevelChart";
 import SelectSession from "./Components/SelectSession";
 import GitHubIconLink from "./Components/GithubIconLink";
+import TimeOfTheDayGraph from "./Components/TimeOfTheDayGraph";
 
 export default function App() {
   const [file, setFile] = useState(null);
@@ -209,7 +210,7 @@ export default function App() {
             </Section>
 
             <Section title="Activity by Hour">
-              <BarGraph stats={hoursDict} />
+              <TimeOfTheDayGraph stats={hoursDict} />
             </Section>
 
             <Section title="Consistency Stats">

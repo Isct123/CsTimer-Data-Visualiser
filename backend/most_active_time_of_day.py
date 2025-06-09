@@ -42,8 +42,8 @@ def cubing_time_stats_dict(sessions):
 
 if __name__ == "__main__":
     sessions = load_all_sessions("data/suku.txt")
-    cubing_periods = load_all_cubing_periods(sessions)
+    
 
-    days_dict, hours_dict = cubing_time_stats_dict(cubing_periods)
+    days_dict, hours_dict = cubing_time_stats_dict(sessions)
     print("Time spent per day of week (hours):", days_dict)
     print("Time spent per hour of day (hours):", hours_dict)

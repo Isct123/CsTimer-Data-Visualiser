@@ -1,0 +1,154 @@
+import React from "react";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+
+function formatHourToAmPm(hour) {
+  const h = hour % 24; // ensure hour wraps in 0-23
+  const suffix = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12} ${suffix}`;
+}
+
+export default function TimeOfTheDayGraph({ stats }) {
+  if (
+    !stats ||
+    Object.values(stats).length === 0 ||
+    Object.values(stats).every((val) => val === 0)
+  ) {
+    return (
+      <p
+        style={{
+          color: "#888",
+          fontWeight: 500,
+          fontSize: 16,
+          margin: 0,
+        }}
+      >
+        No chart data available.
+      </p>
+    );
+  }
+
+  const dataPoints = Object.entries(stats).map(([key, val]) => ({
+    x: Number(key),
+    y: val,
+  }));
+
+  const data = {
+    datasets: [
+      {
+        label: "Hours",
+        data: dataPoints,
+        backgroundColor: "#4D96FF",
+        borderRadius: 4,
+      },
+    ],
+  };
+
+  const options = {
+    maintainAspectRatio: false,
+    responsive: true,
+    scales: {
+      x: {
+        type: "linear",
+        position: "bottom",
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+          font: {
+            weight: "500",
+            size: 14,
+          },
+          stepSize: 1,
+          callback: (val) => formatHourToAmPm(val),
+        },
+        grid: {
+          display: false,
+        },
+        min: 0,
+        max: 23,
+      },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Hours",
+          font: {
+            weight: "600",
+            size: 14,
+          },
+        },
+        ticks: {
+          font: {
+            weight: "500",
+            size: 14,
+          },
+        },
+        grid: {
+          borderDash: [3, 3],
+        },
+      },
+    },
+    plugins: {
+      tooltip: {
+        backgroundColor: "#fff",
+        titleColor: "#000",
+        bodyColor: "#000",
+        titleFont: { weight: "600" },
+        bodyFont: { weight: "500" },
+        padding: 8,
+        borderColor: "#eee",
+        borderWidth: 1,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        callbacks: {
+          label: (context) => {
+            const val = context.parsed.y ?? context.parsed;
+            return `${val} hours`;
+          },
+          title: (context) => {
+            // Show formatted hour in tooltip title
+            const xVal = context[0]?.parsed?.x;
+            return xVal !== undefined ? formatHourToAmPm(xVal) : "";
+          },
+        },
+      },
+      legend: {
+        display: false,
+      },
+    },
+  };
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        maxWidth: 1200,
+        minHeight: 420,
+        background: "#f8fafc",
+        borderRadius: 12,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+        padding: 16,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 40,
+      }}
+    >
+      <div style={{ width: "100%", height: 380 }}>
+        <Bar
+          data={data}
+          options={options}
+        />
+      </div>
+    </div>
+  );
+}
