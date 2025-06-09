@@ -1,7 +1,7 @@
 import utils.preprocess_solves as pf
 from datetime import datetime
 
-def time_spent_breakup(sessions = pf.load_all_sessions(filepath="data/suku.txt")):
+def time_spent_breakup(sessions):
     """Calculate the total time spent on solves for each event in the provided cubing periods.
     
     Args:
