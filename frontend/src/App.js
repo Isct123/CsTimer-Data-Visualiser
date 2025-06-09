@@ -41,10 +41,13 @@ export default function App() {
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://localhost:8000/upload-solves/", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/upload-solves/`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
 

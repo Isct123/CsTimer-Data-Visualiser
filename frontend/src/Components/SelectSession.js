@@ -17,13 +17,16 @@ function SelectSession({ session_names, onSessionSelect }) {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/session-stats/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ session_index: selectedIndex }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/session-stats/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ session_index: selectedIndex }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Server error: ${response.statusText}`);
@@ -34,6 +37,7 @@ function SelectSession({ session_names, onSessionSelect }) {
       onSessionSelect(data);
     } catch (error) {
       console.error("Error fetching session stats:", error);
+      console.log("API URL from env:", process.env.REACT_APP_API_URL);
       alert("Failed to fetch session stats");
     } finally {
       setLoading(false);

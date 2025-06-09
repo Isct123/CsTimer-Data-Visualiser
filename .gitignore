@@ -8,3 +8,4 @@ backend/.ipynb_checkpoints/*
 # Ignore Jupyter notebook checkpoints
 
 frontend/node_modules/*
+frontend/.env.local
