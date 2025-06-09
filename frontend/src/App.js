@@ -11,6 +11,7 @@ export default function App() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [monthlyBreakdown, setMonthlyBreakdown] = useState(null);
   const [longestPeriod, setLongestPeriod] = useState(null);
   const [maxCubingTime, setMaxCubingTime] = useState(null);
   const [mostSolvesDay, setMostSolvesDay] = useState(null);
@@ -61,6 +62,7 @@ export default function App() {
       setConsistency(data.consistency_stats);
       setPbStats(data.pb_stats);
       setSessionNames(data.session_names);
+      setMonthlyBreakdown(data.monthly_breakdown_stats);
 
       alert("File uploaded successfully!");
     } catch (err) {
@@ -176,6 +178,11 @@ export default function App() {
         {/* Display data when ready */}
         {longestPeriod && (
           <div style={{ width: "95%", maxWidth: 1100 }}>
+            <Section title="Cubing monthly breakups">
+              <Stat>
+                <SplitBarGraph stats={monthlyBreakdown} />
+              </Stat>
+            </Section>
             <Section title="Interesting Stats">
               <Stat>{longestPeriod}</Stat>
               <Stat>Longest time spent cubing in a day: {maxCubingTime}</Stat>

@@ -59,6 +59,7 @@ async def upload_solves(file: UploadFile = File(...)):
     average_period_duration_stats = average_period_duration.average_time_per_day(loaded_sessions)
     days_dict, hours_dict = most_active_time_of_day.cubing_time_stats_dict(loaded_sessions)
     consistency_stats = consistency.consistency(loaded_sessions)
+    monthly_breakdown_stats = monthly_breakdown.plot_monthly_event_time_breakdown(loaded_sessions)
 
     global_stats_cache = {
         "longest_cubing_period_stats": (
@@ -68,6 +69,7 @@ async def upload_solves(file: UploadFile = File(...)):
             f"Start Date: {longest_period.solves[0].date}\n"
             f"End Date: {longest_period.solves[-1].date}"
         ),
+        "monthly_breakdown_stats": monthly_breakdown_stats,
         "max_time_spent_cubing_in_a_day_stats": f"{max_time_hours:.2f} hours on {max_date}",
         "most_solves_in_a_day_stats": f"Day with the most solves: {max_solves_date} with {max_solves} solves",
         "most_pbs_in_a_day_stats": f"Date with most PBs: {date}, Counts: {counts[date]}",

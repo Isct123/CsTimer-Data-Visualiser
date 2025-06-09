@@ -60,7 +60,7 @@ def plot_monthly_event_time_breakdown(sessions):
             event_data[event].append(monthly_event_times[month].get(event, 0) / 60)
 
     # Color palette for events
-    colors = plt.cm.get_cmap('tab20', len(all_events))
+    #colors = plt.cm.get_cmap('tab20', len(all_events))
     
     '''
     fig, ax = plt.subplots(figsize=(12, 6))
