@@ -226,7 +226,7 @@ export default function App() {
             <Section title="Activity by Day">
               <BarGraph stats={daysDict} />
             </Section>
-            <Section title="Activity by Hour">
+            <Section title="Activity by Hour (Sorry I'm still working on this because timezones really mess this feature up)">
               <TimeOfTheDayGraph stats={hoursDict} />
             </Section>
             <Section title="Consistency Stats">
