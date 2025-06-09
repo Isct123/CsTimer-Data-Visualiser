@@ -1,5 +1,3 @@
-import numpy as np
-
 import utils.preprocess_solves as pf
 
 def percentile(solve, cubing_period):
