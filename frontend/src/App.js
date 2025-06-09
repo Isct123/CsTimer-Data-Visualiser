@@ -5,12 +5,12 @@ import DotPlot from "./Components/DotPlot";
 import ScatterPlot from "./Components/ScatterPlot";
 import SolveLevelChart from "./Components/SolveLevelChart";
 import SelectSession from "./Components/SelectSession";
+import GitHubIconLink from "./Components/GithubIconLink";
 
 export default function App() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Global stats state
   const [longestPeriod, setLongestPeriod] = useState(null);
   const [maxCubingTime, setMaxCubingTime] = useState(null);
   const [mostSolvesDay, setMostSolvesDay] = useState(null);
@@ -24,7 +24,6 @@ export default function App() {
   const [pbStats, setPbStats] = useState(null);
   const [sessionNames, setSessionNames] = useState([]);
 
-  // Session-specific stats
   const [ao100Progression, setAo100Progression] = useState(null);
   const [ao100PbProgression, setAo100PbProgression] = useState(null);
   const [solveLevel, setSolveLevel] = useState(null);
@@ -32,11 +31,9 @@ export default function App() {
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
   const handleUpload = useCallback(async () => {
-    if (!file) {
-      alert("Please select a file first!");
-      return;
-    }
+    if (!file) return alert("Please select a file first!");
     setLoading(true);
+
     const formData = new FormData();
     formData.append("file", file);
 
@@ -49,6 +46,7 @@ export default function App() {
         }
       );
       if (!res.ok) throw new Error("Upload failed");
+
       const data = await res.json();
 
       setLongestPeriod(data.longest_cubing_period_stats);
@@ -72,7 +70,6 @@ export default function App() {
     }
   }, [file]);
 
-  // Handle when a session is selected (callback from SelectSession)
   const handleSessionSelect = (sessionData) => {
     setAo100Progression(sessionData.ao100_progression);
     setAo100PbProgression(sessionData.ao100_pb_progression);
@@ -83,63 +80,67 @@ export default function App() {
     <div
       style={{
         minHeight: "100vh",
-        width: "100vw",
-        background: "linear-gradient(120deg, #f6d365 0%, #fda085 100%)",
-        fontFamily: "'Segoe UI', 'Roboto', 'Arial', sans-serif",
+        background: "linear-gradient(135deg, #fceabb 0%, #f8b500 100%)",
+        fontFamily: "'Segoe UI', sans-serif",
         overflowX: "hidden",
-        paddingBottom: 40,
+        paddingBottom: 50,
+        position: "relative",
       }}
     >
+      {/* GitHub Icon - floating top-right */}
+      <div style={{ position: "absolute", top: 20, right: 20 }}>
+        <GitHubIconLink />
+      </div>
+
       {/* Header */}
       <header
         style={{
           background: "#fff",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          padding: "24px 0 16px",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+          padding: "32px 0 24px",
           textAlign: "center",
+          fontSize: 36,
           fontWeight: 700,
-          fontSize: 32,
-          letterSpacing: 1,
-          color: "#333",
-          marginBottom: 40,
+          color: "#222",
+          marginBottom: 50,
         }}
       >
-        Yearly Roundup: Upload Solve Stats
+        Yearly Cubing Roundup
       </header>
 
-      {/* File Upload Section */}
-      <div
+      {/* Upload Section */}
+      <section
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
         }}
       >
-        <h2 style={{ fontWeight: 600, fontSize: 24, marginBottom: 24 }}>
-          Upload Your Solve Stats File
+        <h2 style={{ fontSize: 26, marginBottom: 24 }}>
+          Upload Your Solve Stats
         </h2>
 
         <div
           style={{
             display: "flex",
-            gap: 16,
-            marginBottom: 32,
-            justifyContent: "center",
             flexWrap: "wrap",
+            gap: 16,
+            justifyContent: "center",
+            marginBottom: 40,
           }}
         >
           <label
             htmlFor="file-upload"
             style={{
-              background: "#f1f3f6",
+              background: "#fff",
+              border: "1px solid #ccc",
               borderRadius: 8,
-              padding: "10px 18px",
-              border: "1px solid #e0e0e0",
+              padding: "12px 20px",
               cursor: "pointer",
               fontWeight: 500,
-              color: "#555",
-              maxWidth: 350,
+              minWidth: 200,
               textAlign: "center",
+              transition: "all 0.3s",
             }}
           >
             {file ? file.name : "Choose File"}
@@ -156,39 +157,40 @@ export default function App() {
             disabled={loading}
             style={{
               background: loading
-                ? "#bdbdbd"
-                : "linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)",
+                ? "#ccc"
+                : "linear-gradient(90deg, #00c9ff 0%, #92fe9d 100%)",
               color: "#fff",
               border: "none",
               borderRadius: 8,
-              padding: "10px 28px",
-              fontWeight: 600,
+              padding: "12px 28px",
               fontSize: 16,
+              fontWeight: 600,
               cursor: loading ? "not-allowed" : "pointer",
+              transition: "background 0.3s",
             }}
           >
             {loading ? "Uploading..." : "Upload"}
           </button>
         </div>
 
-        {/* Display global stats only if data loaded */}
+        {/* Display data when ready */}
         {longestPeriod && (
-          <div style={{ width: "95%", maxWidth: 1000 }}>
+          <div style={{ width: "95%", maxWidth: 1100 }}>
             <Section title="Interesting Stats">
-              <h4>{longestPeriod}</h4>
-              <h4>Longest time spent cubing in a day: {maxCubingTime}</h4>
-              <h4>{mostSolvesDay}</h4>
-              <h4>{mostPbsDay}</h4>
-              <h4>Total solves: {totalSolves}</h4>
-              <h4>Time spent solving: {eventTimes}</h4>
-              <h4>{averagePeriodDuration}</h4>
-              <h4>
+              <Stat>{longestPeriod}</Stat>
+              <Stat>Longest time spent cubing in a day: {maxCubingTime}</Stat>
+              <Stat>{mostSolvesDay}</Stat>
+              <Stat>{mostPbsDay}</Stat>
+              <Stat>Total solves: {totalSolves}</Stat>
+              <Stat>Time spent solving: {eventTimes}</Stat>
+              <Stat>{averagePeriodDuration}</Stat>
+              <Stat>
                 Total time cubing:{" "}
                 {Object.values(hoursDict)
                   .reduce((acc, val) => acc + val, 0)
                   .toFixed(2)}{" "}
                 hours
-              </h4>
+              </Stat>
             </Section>
 
             <Section title="PB Distribution by Date">
@@ -198,6 +200,7 @@ export default function App() {
             <Section title="Activity by Day">
               <BarGraph stats={daysDict} />
             </Section>
+
             <Section title="Activity by Hour">
               <BarGraph stats={hoursDict} />
             </Section>
@@ -206,7 +209,7 @@ export default function App() {
               <BarGraph stats={consistency} />
             </Section>
 
-            <Section title="Session/Event Specific Stats:">
+            <Section title="Session/Event Specific Stats">
               <SelectSession
                 session_names={sessionNames}
                 onSessionSelect={handleSessionSelect}
@@ -235,7 +238,7 @@ export default function App() {
             )}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }
@@ -246,9 +249,10 @@ const Section = ({ title, children }) => (
       <h3
         style={{
           marginBottom: 24,
+          fontSize: 22,
           fontWeight: 600,
-          fontSize: 20,
           textAlign: "center",
+          color: "#222",
         }}
       >
         {title}
@@ -256,4 +260,18 @@ const Section = ({ title, children }) => (
     )}
     <div>{children}</div>
   </section>
+);
+
+const Stat = ({ children }) => (
+  <p
+    style={{
+      fontSize: 16,
+      fontWeight: 500,
+      color: "#333",
+      marginBottom: 10,
+      lineHeight: 1.4,
+    }}
+  >
+    {children}
+  </p>
 );

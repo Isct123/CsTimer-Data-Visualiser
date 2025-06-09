@@ -27,6 +27,9 @@ The project aims to help cubers understand their performance through charts, mod
 
 ## 🚧 Features TODO
 
+- [ ] Improve the UI
+- [ ] Allow to filter between certain dates
+- [ ] Break the features into more react components
 - [ ] Make the stats rendered server side and use Python only for machine learning models backend.
 - [ ] Solve streaks – longest streaks of sub-X solves
 - [ ] Most frequently occurring solve time
