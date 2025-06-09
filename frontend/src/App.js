@@ -12,7 +12,6 @@ import { DateTime } from "luxon";
 export default function App() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const [monthlyBreakdown, setMonthlyBreakdown] = useState(null);
   const [longestPeriod, setLongestPeriod] = useState(null);
   const [maxCubingTime, setMaxCubingTime] = useState(null);
@@ -26,14 +25,13 @@ export default function App() {
   const [consistency, setConsistency] = useState(null);
   const [pbStats, setPbStats] = useState(null);
   const [sessionNames, setSessionNames] = useState([]);
-
   const [ao100Progression, setAo100Progression] = useState(null);
   const [ao100PbProgression, setAo100PbProgression] = useState(null);
   const [solveLevel, setSolveLevel] = useState(null);
 
   const convertToLocal = (isoString) => {
-    return DateTime.fromISO(isoString, { zone: "America/Los_Angeles" }) // Oregon timezone
-      .setZone(DateTime.local().zoneName) // convert to user's local timezone
+    return DateTime.fromISO(isoString, { zone: "America/Los_Angeles" })
+      .setZone(DateTime.local().zoneName)
       .toISO();
   };
 
@@ -58,12 +56,25 @@ export default function App() {
     }
   };
 
+  const shiftHoursDictToLocal = (utcDict) => {
+    const localDict = {};
+    Object.entries(utcDict).forEach(([hourStr, count]) => {
+      const utcHour = parseInt(hourStr);
+      const utcTime = DateTime.fromObject(
+        { year: 2023, month: 1, day: 1, hour: utcHour },
+        { zone: "utc" }
+      );
+      const localHour = utcTime.toLocal().hour;
+      localDict[localHour] = (localDict[localHour] || 0) + count;
+    });
+    return localDict;
+  };
+
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
   const handleUpload = useCallback(async () => {
     if (!file) return alert("Please select a file first!");
     setLoading(true);
-
     const formData = new FormData();
     formData.append("file", file);
 
@@ -88,7 +99,7 @@ export default function App() {
       setEventTimes(data.event_times_stats);
       setAveragePeriodDuration(data.average_period_duration_stats);
       setDaysDict(data.days_dict_stats);
-      setHoursDict(data.hours_dict_stats);
+      setHoursDict(shiftHoursDictToLocal(data.hours_dict_stats));
       setConsistency(data.consistency_stats);
       setPbStats(data.pb_stats);
       setSessionNames(data.session_names);
@@ -197,6 +208,7 @@ export default function App() {
             {loading ? "Uploading..." : "Upload"}
           </button>
         </div>
+
         {longestPeriod && (
           <div style={{ width: "95%", maxWidth: 1100 }}>
             <Section title="Cubing monthly breakups">
@@ -226,7 +238,7 @@ export default function App() {
             <Section title="Activity by Day">
               <BarGraph stats={daysDict} />
             </Section>
-            <Section title="Activity by Hour (Sorry I'm still working on this because timezones really mess this feature up)">
+            <Section title="Activity by Hour (Local Time)">
               <TimeOfTheDayGraph stats={hoursDict} />
             </Section>
             <Section title="Consistency Stats">
@@ -251,7 +263,7 @@ export default function App() {
                     xlabel="Date"
                   />
                 </Section>
-                <Section title="Solve Level Percentile by part of the session- A session is any time spent cubing continuously. Decile- First 10% of solves, etc. (It assumes that two solves 20 minutes apart are part of different sesssions)">
+                <Section title="Solve Level Percentile by Part of the Session">
                   <SolveLevelChart levels={solveLevel} />
                 </Section>
               </>
