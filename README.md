@@ -27,6 +27,7 @@ The project aims to help cubers understand their performance through charts, mod
 
 ## 🚧 Features TODO
 
+- [ ] Polish and fine-tune everything and smaller details
 - [ ] Improve the UI
 - [ ] Allow to filter between certain dates
 - [ ] Break the features into more react components
