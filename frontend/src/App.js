@@ -7,6 +7,7 @@ import SolveLevelChart from "./Components/SolveLevelChart";
 import SelectSession from "./Components/SelectSession";
 import GitHubIconLink from "./Components/GithubIconLink";
 import TimeOfTheDayGraph from "./Components/TimeOfTheDayGraph";
+import { DateTime } from "luxon";
 
 export default function App() {
   const [file, setFile] = useState(null);
@@ -30,6 +31,33 @@ export default function App() {
   const [ao100PbProgression, setAo100PbProgression] = useState(null);
   const [solveLevel, setSolveLevel] = useState(null);
 
+  const convertToLocal = (isoString) => {
+    return DateTime.fromISO(isoString, { zone: "America/Los_Angeles" }) // Oregon timezone
+      .setZone(DateTime.local().zoneName) // convert to user's local timezone
+      .toISO();
+  };
+
+  const recursivelyConvertTimestamps = (data) => {
+    if (Array.isArray(data)) {
+      return data.map(recursivelyConvertTimestamps);
+    } else if (data !== null && typeof data === "object") {
+      const newObj = {};
+      for (const [key, value] of Object.entries(data)) {
+        if (
+          typeof value === "string" &&
+          /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)
+        ) {
+          newObj[key] = convertToLocal(value);
+        } else {
+          newObj[key] = recursivelyConvertTimestamps(value);
+        }
+      }
+      return newObj;
+    } else {
+      return data;
+    }
+  };
+
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
   const handleUpload = useCallback(async () => {
@@ -49,7 +77,8 @@ export default function App() {
       );
       if (!res.ok) throw new Error("Upload failed");
 
-      const data = await res.json();
+      const rawData = await res.json();
+      const data = recursivelyConvertTimestamps(rawData);
 
       setLongestPeriod(data.longest_cubing_period_stats);
       setMaxCubingTime(data.max_time_spent_cubing_in_a_day_stats);
@@ -64,7 +93,6 @@ export default function App() {
       setPbStats(data.pb_stats);
       setSessionNames(data.session_names);
       setMonthlyBreakdown(data.monthly_breakdown_stats);
-
       alert("File uploaded successfully!");
     } catch (err) {
       alert(err.message);
@@ -74,9 +102,10 @@ export default function App() {
   }, [file]);
 
   const handleSessionSelect = (sessionData) => {
-    setAo100Progression(sessionData.ao100_progression);
-    setAo100PbProgression(sessionData.ao100_pb_progression);
-    setSolveLevel(sessionData.solve_levels_stats);
+    const session = recursivelyConvertTimestamps(sessionData);
+    setAo100Progression(session.ao100_progression);
+    setAo100PbProgression(session.ao100_pb_progression);
+    setSolveLevel(session.solve_levels_stats);
   };
 
   return (
@@ -90,12 +119,9 @@ export default function App() {
         position: "relative",
       }}
     >
-      {/* GitHub Icon - floating top-right */}
       <div style={{ position: "absolute", top: 20, right: 20 }}>
         <GitHubIconLink />
       </div>
-
-      {/* Header */}
       <header
         style={{
           background: "#fff",
@@ -110,8 +136,6 @@ export default function App() {
       >
         Yearly Cubing Roundup
       </header>
-
-      {/* Upload Section */}
       <section
         style={{
           display: "flex",
@@ -122,7 +146,6 @@ export default function App() {
         <h2 style={{ fontSize: 26, marginBottom: 24 }}>
           Upload Your Solve Stats
         </h2>
-
         <div
           style={{
             display: "flex",
@@ -154,7 +177,6 @@ export default function App() {
               style={{ display: "none" }}
             />
           </label>
-
           <button
             onClick={handleUpload}
             disabled={loading}
@@ -175,8 +197,6 @@ export default function App() {
             {loading ? "Uploading..." : "Upload"}
           </button>
         </div>
-
-        {/* Display data when ready */}
         {longestPeriod && (
           <div style={{ width: "95%", maxWidth: 1100 }}>
             <Section title="Cubing monthly breakups">
@@ -200,36 +220,29 @@ export default function App() {
                 hours
               </Stat>
             </Section>
-
             <Section title="PB Distribution by Date">
               <ScatterPlot dataDict={pbStats} />
             </Section>
-
             <Section title="Activity by Day">
               <BarGraph stats={daysDict} />
             </Section>
-
             <Section title="Activity by Hour">
               <TimeOfTheDayGraph stats={hoursDict} />
             </Section>
-
             <Section title="Consistency Stats">
               <BarGraph stats={consistency} />
             </Section>
-
             <Section title="Session/Event Specific Stats">
               <SelectSession
                 session_names={sessionNames}
                 onSessionSelect={handleSessionSelect}
               />
             </Section>
-
             {ao100Progression && (
               <>
                 <Section title="Ao100 Progression">
                   <ScatterPlot dataDict={ao100Progression} />
                 </Section>
-
                 <Section title="Ao100 PB Progression">
                   <DotPlot
                     data={ao100PbProgression}
@@ -238,7 +251,6 @@ export default function App() {
                     xlabel="Date"
                   />
                 </Section>
-
                 <Section title="Solve Level Percentile by part of the session- A session is any time spent cubing continuously. Decile- First 10% of solves, etc. (It assumes that two solves 20 minutes apart are part of different sesssions)">
                   <SolveLevelChart levels={solveLevel} />
                 </Section>
