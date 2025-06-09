@@ -72,11 +72,3 @@ def plot_solve_levels(levels):
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.tight_layout()
     plt.show()
-
-
-if __name__ == "__main__":
-    # Example usage
-    sessions = pf.load_all_sessions("data/real.txt")
-    period = pf.load_all_cubing_periods(sessions)
-    print(solve_levels_from_period(period))
-    plot_solve_levels(solve_levels_from_period(period))
