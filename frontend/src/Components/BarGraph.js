@@ -12,7 +12,11 @@ import {
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function BarGraph({ stats }) {
-  if (!stats) {
+  if (
+    !stats ||
+    Object.values(stats).length === 0 ||
+    Object.values(stats).every((val) => val === 0)
+  ) {
     return (
       <p
         style={{
