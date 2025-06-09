@@ -75,6 +75,7 @@ The project aims to help cubers understand their performance through charts, mod
 
 ## Project Structure
 
+```
 root/
 ├── backend/ # FastAPI backend
 │ ├── features/ # Core analysis modules
@@ -87,6 +88,7 @@ root/
 │ └── public/ # Static assets
 │
 └── .gitignore
+```
 
 ---
 
