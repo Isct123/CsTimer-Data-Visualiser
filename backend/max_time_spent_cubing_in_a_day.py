@@ -10,7 +10,8 @@ def max_time_spent_cubing_in_day(sessions):
     daily_time_spent = {}
 
     for period in cubing_periods:
-        date = period.solves[0].date.split(" ")[0]  # extract only the date part "YYYY-MM-DD"
+        print(period.solves[0].date)
+        date = period.solves[0].date.strftime('%Y-%m-%d')
         time_spent = period.time_spent() * 60  # convert minutes to seconds
 
         if date not in daily_time_spent:

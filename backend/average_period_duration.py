@@ -13,8 +13,8 @@ def average_time_per_day(sessions):
 
         total_duration += period.time_spent()
 
-        first_solve_date = datetime.strptime(period.solves[0].date, '%Y-%m-%d %H:%M:%S')
-        last_solve_date = datetime.strptime(period.solves[-1].date, '%Y-%m-%d %H:%M:%S')
+        first_solve_date = period.solves[0].date # It's already a datetime object!
+        last_solve_date = period.solves[-1].date, '%Y-%m-%d %H:%M:%S'
 
         if min_date is None or first_solve_date < min_date:
             min_date = first_solve_date

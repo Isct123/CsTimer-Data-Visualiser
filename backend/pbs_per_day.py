@@ -38,7 +38,7 @@ def most_pbs_in_a_day(sessions):
     for session in sessions:
         pbs = pb_checker.singlePBs([session])
         for solve, _ in pbs:
-            date = solve.date.split(' ')[0]
+            date = solve.date.strftime('%Y-%m-%d')
             if date not in pb_counts:
                 pb_counts[date] = 1
             pb_counts[date] += 1
@@ -48,7 +48,7 @@ def most_pbs_in_a_day(sessions):
         for average, _ in pbs:
             solve = average[-1]
             # Assuming the last solve in the average is the one that counts for the date
-            date = solve.date.split(' ')[0]  # Extract date part
+            date = solve.date.strftime('%Y-%m-%d')[0]  # Extract date part
             if date not in pb_counts:
                 pb_counts[date] = 0
             pb_counts[date] += 1
@@ -58,7 +58,7 @@ def most_pbs_in_a_day(sessions):
         for average, _ in pbs:
             solve = average[-1]
             # Assuming the last solve in the average is the one that counts for the date
-            date = solve.date.split(' ')[0]  # Extract date part
+            date = solve.date.strftime('%Y-%m-%d')[0]  # Extract date part
             if date not in pb_counts:
                 pb_counts[date] = 0
             pb_counts[date] += 1
@@ -68,7 +68,7 @@ def most_pbs_in_a_day(sessions):
         for average, _ in pbs:
             solve = average[-1]
             # Assuming the last solve in the average is the one that counts for the date
-            date = solve.date.split(' ')[0]  # Extract date part
+            date = solve.date.strftime('%Y-%m-%d')[0]  # Extract date part
             if date not in pb_counts:
                 pb_counts[date] = 0
             pb_counts[date] += 1

@@ -9,7 +9,7 @@ def most_solves_in_a_day(sessions):
     daily_solve_count = {}
     cubing_periods = pf.load_all_cubing_periods(sessions)
     for period in cubing_periods:
-        date = period.solves[0].date.split(" ")[0]  # extract only the date part "YYYY-MM-DD"
+        date = period.solves[0].date.strftime('%Y-%m-%d') # extract only the date part "YYYY-MM-DD"
         solve_count = len(period.solves)
 
         if date not in daily_solve_count:
