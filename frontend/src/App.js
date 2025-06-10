@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import BarGraph from "./Components/BarGraph";
 import SplitBarGraph from "./Components/SplitBarGraph";
 import DotPlot from "./Components/DotPlot";
@@ -7,11 +7,12 @@ import SolveLevelChart from "./Components/SolveLevelChart";
 import SelectSession from "./Components/SelectSession";
 import GitHubIconLink from "./Components/GithubIconLink";
 import TimeOfTheDayGraph from "./Components/TimeOfTheDayGraph";
-import { DateTime } from "luxon";
 
 export default function App() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [userTimezone, setUserTimezone] = useState(""); // New state for timezone
+
   const [monthlyBreakdown, setMonthlyBreakdown] = useState(null);
   const [longestPeriod, setLongestPeriod] = useState(null);
   const [maxCubingTime, setMaxCubingTime] = useState(null);
@@ -25,58 +26,42 @@ export default function App() {
   const [consistency, setConsistency] = useState(null);
   const [pbStats, setPbStats] = useState(null);
   const [sessionNames, setSessionNames] = useState([]);
+
   const [ao100Progression, setAo100Progression] = useState(null);
   const [ao100PbProgression, setAo100PbProgression] = useState(null);
   const [solveLevel, setSolveLevel] = useState(null);
 
-  const convertToLocal = (isoString) => {
-    return DateTime.fromISO(isoString, { zone: "America/Los_Angeles" })
-      .setZone(DateTime.local().zoneName)
-      .toISO();
-  };
-
-  const recursivelyConvertTimestamps = (data) => {
-    if (Array.isArray(data)) {
-      return data.map(recursivelyConvertTimestamps);
-    } else if (data !== null && typeof data === "object") {
-      const newObj = {};
-      for (const [key, value] of Object.entries(data)) {
-        if (
-          typeof value === "string" &&
-          /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)
-        ) {
-          newObj[key] = convertToLocal(value);
-        } else {
-          newObj[key] = recursivelyConvertTimestamps(value);
-        }
-      }
-      return newObj;
-    } else {
-      return data;
+  // Detect user's timezone on component mount
+  useEffect(() => {
+    try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      setUserTimezone(timezone);
+      console.log("Detected user timezone:", timezone);
+    } catch (error) {
+      console.error("Error detecting timezone:", error);
+      // Fallback to UTC if detection fails, though it's generally well-supported
+      setUserTimezone("Etc/UTC");
     }
-  };
-
-  const shiftHoursDictToLocal = (utcDict) => {
-    const localDict = {};
-    Object.entries(utcDict).forEach(([hourStr, count]) => {
-      const utcHour = parseInt(hourStr);
-      const utcTime = DateTime.fromObject(
-        { year: 2023, month: 1, day: 1, hour: utcHour },
-        { zone: "utc" }
-      );
-      const localHour = utcTime.toLocal().hour;
-      localDict[localHour] = (localDict[localHour] || 0) + count;
-    });
-    return localDict;
-  };
+  }, []);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
   const handleUpload = useCallback(async () => {
-    if (!file) return alert("Please select a file first!");
+    if (!file) {
+      alert("Please select a file first!");
+      return;
+    }
+    if (!userTimezone) {
+      alert("Could not detect your timezone. Please try again or refresh.");
+      return;
+    }
+
     setLoading(true);
+
     const formData = new FormData();
     formData.append("file", file);
+    // Append the user's timezone to the FormData
+    formData.append("timezone", userTimezone);
 
     try {
       const res = await fetch(
@@ -86,10 +71,13 @@ export default function App() {
           body: formData,
         }
       );
-      if (!res.ok) throw new Error("Upload failed");
 
-      const rawData = await res.json();
-      const data = recursivelyConvertTimestamps(rawData);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Upload failed");
+      }
+
+      const data = await res.json();
 
       setLongestPeriod(data.longest_cubing_period_stats);
       setMaxCubingTime(data.max_time_spent_cubing_in_a_day_stats);
@@ -99,24 +87,24 @@ export default function App() {
       setEventTimes(data.event_times_stats);
       setAveragePeriodDuration(data.average_period_duration_stats);
       setDaysDict(data.days_dict_stats);
-      setHoursDict(shiftHoursDictToLocal(data.hours_dict_stats));
+      setHoursDict(data.hours_dict_stats);
       setConsistency(data.consistency_stats);
       setPbStats(data.pb_stats);
       setSessionNames(data.session_names);
       setMonthlyBreakdown(data.monthly_breakdown_stats);
+      console.log(data);
       alert("File uploaded successfully!");
     } catch (err) {
       alert(err.message);
     } finally {
       setLoading(false);
     }
-  }, [file]);
+  }, [file, userTimezone]); // Add userTimezone to the dependency array
 
   const handleSessionSelect = (sessionData) => {
-    const session = recursivelyConvertTimestamps(sessionData);
-    setAo100Progression(session.ao100_progression);
-    setAo100PbProgression(session.ao100_pb_progression);
-    setSolveLevel(session.solve_levels_stats);
+    setAo100Progression(sessionData.ao100_progression);
+    setAo100PbProgression(sessionData.ao100_pb_progression);
+    setSolveLevel(sessionData.solve_levels_stats);
   };
 
   return (
@@ -130,9 +118,12 @@ export default function App() {
         position: "relative",
       }}
     >
+      {/* GitHub Icon - floating top-right */}
       <div style={{ position: "absolute", top: 20, right: 20 }}>
         <GitHubIconLink />
       </div>
+
+      {/* Header */}
       <header
         style={{
           background: "#fff",
@@ -147,6 +138,8 @@ export default function App() {
       >
         Yearly Cubing Roundup
       </header>
+
+      {/* Upload Section */}
       <section
         style={{
           display: "flex",
@@ -157,6 +150,7 @@ export default function App() {
         <h2 style={{ fontSize: 26, marginBottom: 24 }}>
           Upload Your Solve Stats
         </h2>
+
         <div
           style={{
             display: "flex",
@@ -188,27 +182,34 @@ export default function App() {
               style={{ display: "none" }}
             />
           </label>
+
           <button
             onClick={handleUpload}
-            disabled={loading}
+            disabled={loading || !userTimezone}
             style={{
-              background: loading
-                ? "#ccc"
-                : "linear-gradient(90deg, #00c9ff 0%, #92fe9d 100%)",
+              background:
+                loading || !userTimezone
+                  ? "#ccc"
+                  : "linear-gradient(90deg, #00c9ff 0%, #92fe9d 100%)",
               color: "#fff",
               border: "none",
               borderRadius: 8,
               padding: "12px 28px",
               fontSize: 16,
               fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer",
+              cursor: loading || !userTimezone ? "not-allowed" : "pointer",
               transition: "background 0.3s",
             }}
           >
-            {loading ? "Uploading..." : "Upload"}
+            {loading
+              ? "Uploading..."
+              : !userTimezone
+              ? "Detecting Timezone..."
+              : "Upload"}
           </button>
         </div>
 
+        {/* Display data when ready */}
         {longestPeriod && (
           <div style={{ width: "95%", maxWidth: 1100 }}>
             <Section title="Cubing monthly breakups">
@@ -232,29 +233,36 @@ export default function App() {
                 hours
               </Stat>
             </Section>
+
             <Section title="PB Distribution by Date">
               <ScatterPlot dataDict={pbStats} />
             </Section>
+
             <Section title="Activity by Day">
               <BarGraph stats={daysDict} />
             </Section>
-            <Section title="Activity by Hour (Local Time)">
+
+            <Section title="Activity by Hour">
               <TimeOfTheDayGraph stats={hoursDict} />
             </Section>
+
             <Section title="Consistency Stats">
               <BarGraph stats={consistency} />
             </Section>
+
             <Section title="Session/Event Specific Stats">
               <SelectSession
                 session_names={sessionNames}
                 onSessionSelect={handleSessionSelect}
               />
             </Section>
+
             {ao100Progression && (
               <>
                 <Section title="Ao100 Progression">
                   <ScatterPlot dataDict={ao100Progression} />
                 </Section>
+
                 <Section title="Ao100 PB Progression">
                   <DotPlot
                     data={ao100PbProgression}
@@ -263,7 +271,8 @@ export default function App() {
                     xlabel="Date"
                   />
                 </Section>
-                <Section title="Solve Level Percentile by Part of the Session">
+
+                <Section title="Solve Level Percentile by part of the session- A session is any time spent cubing continuously. Decile- First 10% of solves, etc. (It assumes that two solves 20 minutes apart are part of different sesssions)">
                   <SolveLevelChart levels={solveLevel} />
                 </Section>
               </>
