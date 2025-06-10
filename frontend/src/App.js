@@ -6,6 +6,8 @@ import ScatterPlot from "./Components/ScatterPlot";
 import SolveLevelChart from "./Components/SolveLevelChart";
 import SelectSession from "./Components/SelectSession";
 
+import { FaGithub } from "react-icons/fa"; // Place this at the top of your file
+
 export default function App() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -246,9 +248,26 @@ const Header = () => (
       letterSpacing: 1,
       color: "#333",
       marginBottom: 40,
+      position: "relative",
     }}
   >
     Yearly Roundup: Upload Solve Stats
+    <a
+      href="https://github.com/Isct123/CsTimer-Data-Visualiser"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        position: "absolute",
+        top: 24,
+        right: 24,
+        color: "#000",
+        textDecoration: "none",
+        fontSize: 28,
+      }}
+      title="View on GitHub"
+    >
+      <FaGithub />
+    </a>
   </header>
 );
 
