@@ -10,24 +10,29 @@ export default function App() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Global stats state
-  const [longestPeriod, setLongestPeriod] = useState(null);
-  const [maxCubingTime, setMaxCubingTime] = useState(null);
-  const [mostSolvesDay, setMostSolvesDay] = useState(null);
-  const [mostPbsDay, setMostPbsDay] = useState(null);
-  const [totalSolves, setTotalSolves] = useState(null);
-  const [eventTimes, setEventTimes] = useState(null);
-  const [averagePeriodDuration, setAveragePeriodDuration] = useState(null);
-  const [daysDict, setDaysDict] = useState({});
-  const [hoursDict, setHoursDict] = useState({});
-  const [consistency, setConsistency] = useState(null);
-  const [pbStats, setPbStats] = useState(null);
-  const [sessionNames, setSessionNames] = useState([]);
+  // Global stats
+  const [stats, setStats] = useState({
+    longestPeriod: null,
+    maxCubingTime: null,
+    mostSolvesDay: null,
+    mostPbsDay: null,
+    totalSolves: null,
+    eventTimes: null,
+    averagePeriodDuration: null,
+    daysDict: {},
+    hoursDict: {},
+    consistency: null,
+    pbStats: null,
+    sessionNames: [],
+    monthlyBreakdown: {},
+  });
 
   // Session-specific stats
-  const [ao100Progression, setAo100Progression] = useState(null);
-  const [ao100PbProgression, setAo100PbProgression] = useState(null);
-  const [solveLevel, setSolveLevel] = useState(null);
+  const [sessionStats, setSessionStats] = useState({
+    ao100Progression: null,
+    ao100PbProgression: null,
+    solveLevel: null,
+  });
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -36,9 +41,15 @@ export default function App() {
       alert("Please select a file first!");
       return;
     }
+
     setLoading(true);
+
     const formData = new FormData();
     formData.append("file", file);
+
+    // Detect user's timezone
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    formData.append("timezone", timezone);
 
     try {
       const res = await fetch(
@@ -48,21 +59,26 @@ export default function App() {
           body: formData,
         }
       );
+
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
 
-      setLongestPeriod(data.longest_cubing_period_stats);
-      setMaxCubingTime(data.max_time_spent_cubing_in_a_day_stats);
-      setMostSolvesDay(data.most_solves_in_a_day_stats);
-      setMostPbsDay(data.most_pbs_in_a_day_stats);
-      setTotalSolves(data.total_solves_stats);
-      setEventTimes(data.event_times_stats);
-      setAveragePeriodDuration(data.average_period_duration_stats);
-      setDaysDict(data.days_dict_stats);
-      setHoursDict(data.hours_dict_stats);
-      setConsistency(data.consistency_stats);
-      setPbStats(data.pb_stats);
-      setSessionNames(data.session_names);
+      // Set global stats
+      setStats({
+        longestPeriod: data.longest_cubing_period_stats,
+        maxCubingTime: data.max_time_spent_cubing_in_a_day_stats,
+        mostSolvesDay: data.most_solves_in_a_day_stats,
+        mostPbsDay: data.most_pbs_in_a_day_stats,
+        totalSolves: data.total_solves_stats,
+        eventTimes: data.event_times_stats,
+        averagePeriodDuration: data.average_period_duration_stats,
+        daysDict: data.days_dict_stats,
+        hoursDict: data.hours_dict_stats,
+        consistency: data.consistency_stats,
+        pbStats: data.pb_stats,
+        sessionNames: data.session_names,
+        monthlyBreakdown: data.monthly_breakdown_stats,
+      });
 
       alert("File uploaded successfully!");
     } catch (err) {
@@ -72,12 +88,31 @@ export default function App() {
     }
   }, [file]);
 
-  // Handle when a session is selected (callback from SelectSession)
   const handleSessionSelect = (sessionData) => {
-    setAo100Progression(sessionData.ao100_progression);
-    setAo100PbProgression(sessionData.ao100_pb_progression);
-    setSolveLevel(sessionData.solve_levels_stats);
+    setSessionStats({
+      ao100Progression: sessionData.ao100_progression,
+      ao100PbProgression: sessionData.ao100_pb_progression,
+      solveLevel: sessionData.solve_levels_stats,
+    });
   };
+
+  const {
+    longestPeriod,
+    maxCubingTime,
+    mostSolvesDay,
+    mostPbsDay,
+    totalSolves,
+    eventTimes,
+    averagePeriodDuration,
+    daysDict,
+    hoursDict,
+    consistency,
+    pbStats,
+    sessionNames,
+    monthlyBreakdown,
+  } = stats;
+
+  const { ao100Progression, ao100PbProgression, solveLevel } = sessionStats;
 
   return (
     <div
@@ -90,24 +125,8 @@ export default function App() {
         paddingBottom: 40,
       }}
     >
-      {/* Header */}
-      <header
-        style={{
-          background: "#fff",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          padding: "24px 0 16px",
-          textAlign: "center",
-          fontWeight: 700,
-          fontSize: 32,
-          letterSpacing: 1,
-          color: "#333",
-          marginBottom: 40,
-        }}
-      >
-        Yearly Roundup: Upload Solve Stats
-      </header>
+      <Header />
 
-      {/* File Upload Section */}
       <div
         style={{
           display: "flex",
@@ -115,80 +134,54 @@ export default function App() {
           alignItems: "center",
         }}
       >
-        <h2 style={{ fontWeight: 600, fontSize: 24, marginBottom: 24 }}>
-          Upload Your Solve Stats File
-        </h2>
+        <UploadSection
+          file={file}
+          loading={loading}
+          onFileChange={handleFileChange}
+          onUpload={handleUpload}
+        />
 
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            marginBottom: 32,
-            justifyContent: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <label
-            htmlFor="file-upload"
-            style={{
-              background: "#f1f3f6",
-              borderRadius: 8,
-              padding: "10px 18px",
-              border: "1px solid #e0e0e0",
-              cursor: "pointer",
-              fontWeight: 500,
-              color: "#555",
-              maxWidth: 350,
-              textAlign: "center",
-            }}
-          >
-            {file ? file.name : "Choose File"}
-            <input
-              id="file-upload"
-              type="file"
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-            />
-          </label>
-
-          <button
-            onClick={handleUpload}
-            disabled={loading}
-            style={{
-              background: loading
-                ? "#bdbdbd"
-                : "linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)",
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              padding: "10px 28px",
-              fontWeight: 600,
-              fontSize: 16,
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
-          >
-            {loading ? "Uploading..." : "Upload"}
-          </button>
-        </div>
-
-        {/* Display global stats only if data loaded */}
         {longestPeriod && (
           <div style={{ width: "95%", maxWidth: 1000 }}>
+            <Section title="Monthly Cubing Breakdown">
+              <SplitBarGraph stats={monthlyBreakdown} />
+            </Section>
+
             <Section title="Interesting Stats">
-              <h4>{longestPeriod}</h4>
-              <h4>Longest time spent cubing in a day: {maxCubingTime}</h4>
-              <h4>{mostSolvesDay}</h4>
-              <h4>{mostPbsDay}</h4>
-              <h4>Total solves: {totalSolves}</h4>
-              <h4>Time spent solving: {eventTimes}</h4>
-              <h4>{averagePeriodDuration}</h4>
-              <h4>
-                Total time cubing:{" "}
-                {Object.values(hoursDict)
+              <StatBlock
+                label="Longest Period"
+                value={longestPeriod}
+              />
+              <StatBlock
+                label="Longest time spent cubing in a day"
+                value={maxCubingTime}
+              />
+              <StatBlock
+                label="Most solves in a day"
+                value={mostSolvesDay}
+              />
+              <StatBlock
+                label="Most PBs in a day"
+                value={mostPbsDay}
+              />
+              <StatBlock
+                label="Total solves"
+                value={totalSolves}
+              />
+              <StatBlock
+                label="Time spent solving"
+                value={eventTimes}
+              />
+              <StatBlock
+                label="Avg cubing period duration"
+                value={averagePeriodDuration}
+              />
+              <StatBlock
+                label="Total time cubing"
+                value={`${Object.values(hoursDict)
                   .reduce((acc, val) => acc + val, 0)
-                  .toFixed(2)}{" "}
-                hours
-              </h4>
+                  .toFixed(2)} hours`}
+              />
             </Section>
 
             <Section title="PB Distribution by Date">
@@ -198,6 +191,7 @@ export default function App() {
             <Section title="Activity by Day">
               <BarGraph stats={daysDict} />
             </Section>
+
             <Section title="Activity by Hour">
               <BarGraph stats={hoursDict} />
             </Section>
@@ -206,7 +200,7 @@ export default function App() {
               <BarGraph stats={consistency} />
             </Section>
 
-            <Section title="Session/Event Specific Stats:">
+            <Section title="Session/Event Specific Stats">
               <SelectSession
                 session_names={sessionNames}
                 onSessionSelect={handleSessionSelect}
@@ -240,20 +234,122 @@ export default function App() {
   );
 }
 
-const Section = ({ title, children }) => (
-  <section style={{ marginTop: 60 }}>
-    {title && (
-      <h3
+const Header = () => (
+  <header
+    style={{
+      background: "#fff",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+      padding: "24px 0 16px",
+      textAlign: "center",
+      fontWeight: 700,
+      fontSize: 32,
+      letterSpacing: 1,
+      color: "#333",
+      marginBottom: 40,
+    }}
+  >
+    Yearly Roundup: Upload Solve Stats
+  </header>
+);
+
+const UploadSection = ({ file, loading, onFileChange, onUpload }) => (
+  <>
+    <h2 style={{ fontWeight: 600, fontSize: 24, marginBottom: 24 }}>
+      Upload Your Solve Stats File
+    </h2>
+
+    <div
+      style={{
+        display: "flex",
+        gap: 16,
+        marginBottom: 32,
+        justifyContent: "center",
+        flexWrap: "wrap",
+      }}
+    >
+      <label
+        htmlFor="file-upload"
         style={{
-          marginBottom: 24,
-          fontWeight: 600,
-          fontSize: 20,
+          background: "#f1f3f6",
+          borderRadius: 8,
+          padding: "10px 18px",
+          border: "1px solid #e0e0e0",
+          cursor: "pointer",
+          fontWeight: 500,
+          color: "#555",
+          maxWidth: 350,
           textAlign: "center",
         }}
       >
+        {file ? file.name : "Choose File"}
+        <input
+          id="file-upload"
+          type="file"
+          onChange={onFileChange}
+          style={{ display: "none" }}
+        />
+      </label>
+
+      <button
+        onClick={onUpload}
+        disabled={loading}
+        style={{
+          background: loading
+            ? "#bdbdbd"
+            : "linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)",
+          color: "#fff",
+          border: "none",
+          borderRadius: 8,
+          padding: "10px 28px",
+          fontWeight: 600,
+          fontSize: 16,
+          cursor: loading ? "not-allowed" : "pointer",
+        }}
+      >
+        {loading ? "Uploading..." : "Upload"}
+      </button>
+    </div>
+  </>
+);
+
+const Section = ({ title, children }) => (
+  <section style={{ marginTop: 60 }}>
+    {title && (
+      <h2
+        style={{
+          fontSize: 22,
+          fontWeight: 600,
+          marginBottom: 20,
+          borderBottom: "2px solid #ddd",
+          paddingBottom: 8,
+          color: "#333",
+        }}
+      >
         {title}
-      </h3>
+      </h2>
     )}
     <div>{children}</div>
   </section>
+);
+
+const StatBlock = ({ label, value }) => (
+  <div
+    style={{
+      backgroundColor: "#ffffffcc",
+      border: "1px solid #e0e0e0",
+      borderRadius: 12,
+      padding: "16px 20px",
+      margin: "10px 0",
+      fontSize: 16,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+    }}
+  >
+    <span style={{ fontWeight: 500, color: "#333" }}>{label}</span>
+    <span style={{ fontWeight: 600, color: "#111" }}>
+      {typeof value === "object" ? JSON.stringify(value) : value}
+    </span>
+  </div>
 );

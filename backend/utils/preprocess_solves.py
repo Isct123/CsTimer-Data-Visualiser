@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 import utils.scramble_codes as sc
+import pytz
 
 class Solve:
     def __init__(self, time, date, scramble, penalty, comment):
@@ -49,24 +50,27 @@ class CubingPeriod:
         last_solve = datetime.strptime(self.solves[-1].date, '%Y-%m-%d %H:%M:%S')
         return (last_solve - first_solve).total_seconds() / 60
 
-def unix_to_time(unix_time):
-    return datetime.fromtimestamp(unix_time).strftime('%Y-%m-%d %H:%M:%S')
+def unix_to_time(unix_time, timezone_str='UTC'):
+    tz = pytz.timezone(timezone_str)
+    return datetime.fromtimestamp(unix_time, tz).strftime('%Y-%m-%d %H:%M:%S')
 
-def create_solve(raw_solve):
+def create_solve(raw_solve, timezone_str='UTC'):
     penalty = raw_solve[0][0]
     time = raw_solve[0][1] / 1000  # ms to s
     scramble = raw_solve[1]
     comment = raw_solve[2]
-    date = unix_to_time(raw_solve[3])
-    if(penalty == -1):
+    date = unix_to_time(raw_solve[3], timezone_str)
+    if penalty == -1:
         time = float('inf')  # Handle DNF as infinity
-    elif(penalty == 2000):
+    elif penalty == 2000:
         time += 2  # Handle +2 penalty
     return Solve(time, date, scramble, penalty, comment)
 
-def load_solves_for_session(data, session_key):
+
+def load_solves_for_session(data, session_key, timezone_str='UTC'):
     solve_entries = data.get(session_key, [])
-    return [create_solve(s) for s in solve_entries]
+    return [create_solve(s, timezone_str) for s in solve_entries]
+
 
 def get_cubing_periods(session):
     """Partition sessions into cubing periods based on the assumption that a cubing period has solves within a 20 minute window."""
@@ -108,7 +112,7 @@ def seconds_to_days_hours_minutes(seconds):
     minutes = seconds // 60
     return days, hours, minutes
 
-def load_all_sessions(filepath):
+def load_all_sessions(filepath, timezone_str='UTC'):
     with open(filepath, 'r') as f:
         raw_data = json.load(f)
 
@@ -119,7 +123,7 @@ def load_all_sessions(filepath):
         session_key = f"session{session_id_str}"
         name = str(metadata.get('name', f'Session {session_id_str}'))
         scramble_event = metadata.get('opt', {}).get('scrType', '333')
-        solves = load_solves_for_session(raw_data, session_key)
+        solves = load_solves_for_session(raw_data, session_key, timezone_str)
         session = Session(
             name=f"Session {name}",
             session_id=int(session_id_str),
@@ -130,6 +134,7 @@ def load_all_sessions(filepath):
         sessions.append(session)
 
     return sessions
+
 
 def load_all_cubing_periods(sessions):
     """Load all cubing periods from the provided sessions."""
