@@ -18,6 +18,7 @@ import solve_level
 import average_period_duration
 import most_active_time_of_day
 import consistency
+from time_distribution import time_distribution
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -118,10 +119,12 @@ async def session_stats(request: SessionIndexRequest):
     ao100_dict = plot_improvement.create_avg_dict(session, 100)
     ao100_pb_dict = plot_improvement.create_pb_dict(session, 100)
     solve_levels = solve_level.solve_levels_from_sessions([session])
+    time_distribution_dict = time_distribution(session)
 
     return {
         "session_name": session.name,
         "ao100_progression": ao100_dict,
         "ao100_pb_progression": ao100_pb_dict,
         "solve_levels_stats": solve_levels,
+        "time_distribution_dict":time_distribution_dict,
     }

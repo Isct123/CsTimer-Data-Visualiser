@@ -5,36 +5,13 @@ import DotPlot from "./Components/DotPlot";
 import ScatterPlot from "./Components/ScatterPlot";
 import SolveLevelChart from "./Components/SolveLevelChart";
 import SelectSession from "./Components/SelectSession";
-
-import { FaGithub } from "react-icons/fa"; // Place this at the top of your file
+import { FaGithub } from "react-icons/fa";
 
 export default function App() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // Global stats
-  const [stats, setStats] = useState({
-    longestPeriod: null,
-    maxCubingTime: null,
-    mostSolvesDay: null,
-    mostPbsDay: null,
-    totalSolves: null,
-    eventTimes: null,
-    averagePeriodDuration: null,
-    daysDict: {},
-    hoursDict: {},
-    consistency: null,
-    pbStats: null,
-    sessionNames: [],
-    monthlyBreakdown: {},
-  });
-
-  // Session-specific stats
-  const [sessionStats, setSessionStats] = useState({
-    ao100Progression: null,
-    ao100PbProgression: null,
-    solveLevel: null,
-  });
+  const [globalStats, setGlobalStats] = useState({});
+  const [sessionStats, setSessionStats] = useState({});
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -45,13 +22,12 @@ export default function App() {
     }
 
     setLoading(true);
-
     const formData = new FormData();
     formData.append("file", file);
-
-    // Detect user's timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    formData.append("timezone", timezone);
+    formData.append(
+      "timezone",
+      Intl.DateTimeFormat().resolvedOptions().timeZone
+    );
 
     try {
       const res = await fetch(
@@ -65,23 +41,7 @@ export default function App() {
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
 
-      // Set global stats
-      setStats({
-        longestPeriod: data.longest_cubing_period_stats,
-        maxCubingTime: data.max_time_spent_cubing_in_a_day_stats,
-        mostSolvesDay: data.most_solves_in_a_day_stats,
-        mostPbsDay: data.most_pbs_in_a_day_stats,
-        totalSolves: data.total_solves_stats,
-        eventTimes: data.event_times_stats,
-        averagePeriodDuration: data.average_period_duration_stats,
-        daysDict: data.days_dict_stats,
-        hoursDict: data.hours_dict_stats,
-        consistency: data.consistency_stats,
-        pbStats: data.pb_stats,
-        sessionNames: data.session_names,
-        monthlyBreakdown: data.monthly_breakdown_stats,
-      });
-
+      setGlobalStats(data);
       alert("File uploaded successfully!");
     } catch (err) {
       alert(err.message);
@@ -90,31 +50,72 @@ export default function App() {
     }
   }, [file]);
 
-  const handleSessionSelect = (sessionData) => {
-    setSessionStats({
-      ao100Progression: sessionData.ao100_progression,
-      ao100PbProgression: sessionData.ao100_pb_progression,
-      solveLevel: sessionData.solve_levels_stats,
-    });
+  const handleSessionSelect = (sessionData) => setSessionStats(sessionData);
+
+  const globalFeatureMap = {
+    monthly_breakdown_stats: {
+      title: "Monthly Cubing Breakdown",
+      Component: SplitBarGraph,
+      propKey: "stats",
+    },
+    most_solves_in_a_day_stats: { label: "Most solves in a day" },
+    most_pbs_in_a_day_stats: { label: "Most PBs in a day" },
+    longest_cubing_period_stats: { label: "Longest Period" },
+    max_time_spent_cubing_in_a_day_stats: {
+      label: "Longest time spent cubing in a day",
+    },
+    total_solves_stats: { label: "Total solves" },
+    event_times_stats: { label: "Time spent solving" },
+    average_period_duration_stats: { label: "Avg cubing period duration" },
+    pb_stats: {
+      title: "PB Distribution by Date",
+      Component: ScatterPlot,
+      propKey: "dataDict",
+    },
+    days_dict_stats: {
+      title: "Activity by Day",
+      Component: BarGraph,
+      propKey: "stats",
+    },
+    hours_dict_stats: {
+      title: "Activity by Hour",
+      Component: BarGraph,
+      propKey: "stats",
+    },
+    consistency_stats: {
+      title: "Consistency Stats",
+      Component: BarGraph,
+      propKey: "stats",
+    },
   };
 
-  const {
-    longestPeriod,
-    maxCubingTime,
-    mostSolvesDay,
-    mostPbsDay,
-    totalSolves,
-    eventTimes,
-    averagePeriodDuration,
-    daysDict,
-    hoursDict,
-    consistency,
-    pbStats,
-    sessionNames,
-    monthlyBreakdown,
-  } = stats;
-
-  const { ao100Progression, ao100PbProgression, solveLevel } = sessionStats;
+  const sessionFeatureMap = {
+    ao100_progression: {
+      title: "Ao100 Progression",
+      Component: ScatterPlot,
+      propKey: "dataDict",
+    },
+    ao100_pb_progression: {
+      title: "Ao100 PB Progression",
+      Component: DotPlot,
+      props: (data) => ({
+        data,
+        title: "Ao100 PB Progression",
+        ylabel: "Ao100 Time (s)",
+        xlabel: "Date",
+      }),
+    },
+    solve_levels_stats: {
+      title: "Solve Level Percentile by Decile",
+      Component: SolveLevelChart,
+      propKey: "levels",
+    },
+    time_distribution_dict: {
+      title: "Times Distribution",
+      Component: BarGraph,
+      propKey: "stats",
+    },
+  };
 
   return (
     <div
@@ -128,7 +129,6 @@ export default function App() {
       }}
     >
       <Header />
-
       <div
         style={{
           display: "flex",
@@ -143,92 +143,57 @@ export default function App() {
           onUpload={handleUpload}
         />
 
-        {longestPeriod && (
+        {globalStats && globalStats.session_names && (
           <div style={{ width: "95%", maxWidth: 1000 }}>
-            <Section title="Monthly Cubing Breakdown">
-              <SplitBarGraph stats={monthlyBreakdown} />
-            </Section>
-
-            <Section title="Interesting Stats">
-              <StatBlock
-                label="Longest Period"
-                value={longestPeriod}
-              />
-              <StatBlock
-                label="Longest time spent cubing in a day"
-                value={maxCubingTime}
-              />
-              <StatBlock
-                label="Most solves in a day"
-                value={mostSolvesDay}
-              />
-              <StatBlock
-                label="Most PBs in a day"
-                value={mostPbsDay}
-              />
-              <StatBlock
-                label="Total solves"
-                value={totalSolves}
-              />
-              <StatBlock
-                label="Time spent solving"
-                value={eventTimes}
-              />
-              <StatBlock
-                label="Avg cubing period duration"
-                value={averagePeriodDuration}
-              />
-              <StatBlock
-                label="Total time cubing"
-                value={`${Object.values(hoursDict)
-                  .reduce((acc, val) => acc + val, 0)
-                  .toFixed(2)} hours`}
-              />
-            </Section>
-
-            <Section title="PB Distribution by Date">
-              <ScatterPlot dataDict={pbStats} />
-            </Section>
-
-            <Section title="Activity by Day">
-              <BarGraph stats={daysDict} />
-            </Section>
-
-            <Section title="Activity by Hour">
-              <BarGraph stats={hoursDict} />
-            </Section>
-
-            <Section title="Consistency Stats">
-              <BarGraph stats={consistency} />
-            </Section>
+            {Object.entries(globalFeatureMap).map(([key, config]) => {
+              const value = globalStats[key];
+              if (!value) return null;
+              if (config.Component) {
+                const props = config.props
+                  ? config.props(value)
+                  : { [config.propKey || "data"]: value };
+                return (
+                  <Section
+                    key={key}
+                    title={config.title}
+                  >
+                    <config.Component {...props} />
+                  </Section>
+                );
+              } else if (config.label) {
+                return (
+                  <StatBlock
+                    key={key}
+                    label={config.label}
+                    value={value}
+                  />
+                );
+              }
+              return null;
+            })}
 
             <Section title="Session/Event Specific Stats">
               <SelectSession
-                session_names={sessionNames}
+                session_names={globalStats.session_names}
                 onSessionSelect={handleSessionSelect}
               />
             </Section>
 
-            {ao100Progression && (
-              <>
-                <Section title="Ao100 Progression">
-                  <ScatterPlot dataDict={ao100Progression} />
+            {Object.entries(sessionStats).map(([key, value]) => {
+              const config = sessionFeatureMap[key];
+              if (!config || !value) return null;
+              const props = config.props
+                ? config.props(value)
+                : { [config.propKey || "data"]: value };
+              return (
+                <Section
+                  key={key}
+                  title={config.title}
+                >
+                  <config.Component {...props} />
                 </Section>
-
-                <Section title="Ao100 PB Progression">
-                  <DotPlot
-                    data={ao100PbProgression}
-                    title="Ao100 PB Progression"
-                    ylabel="Ao100 Time (s)"
-                    xlabel="Date"
-                  />
-                </Section>
-
-                <Section title="Solve Level Percentile by Decile">
-                  <SolveLevelChart levels={solveLevel} />
-                </Section>
-              </>
-            )}
+              );
+            })}
           </div>
         )}
       </div>
@@ -276,7 +241,6 @@ const UploadSection = ({ file, loading, onFileChange, onUpload }) => (
     <h2 style={{ fontWeight: 600, fontSize: 24, marginBottom: 24 }}>
       Upload Your Solve Stats File
     </h2>
-
     <div
       style={{
         display: "flex",
@@ -308,7 +272,6 @@ const UploadSection = ({ file, loading, onFileChange, onUpload }) => (
           style={{ display: "none" }}
         />
       </label>
-
       <button
         onClick={onUpload}
         disabled={loading}
