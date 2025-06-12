@@ -26,6 +26,7 @@ The project aims to help cubers understand their performance through charts, mod
 - [x] Average session duration and trend analysis
 - [x] Most active time of day for cubing
 - [x] Average duration of a cubing period
+- [x] Range-based solve time distribution graph
 
 ---
 
@@ -70,7 +71,6 @@ The project aims to help cubers understand their performance through charts, mod
 - [ ] PB timeline
 - [ ] Monthly PB bar chart
 - [ ] “Close calls” tracker – nearly missed PBs
-- [ ] Range-based solve time distribution graph
 - [ ] React-based solve filtering
 - [ ] Manual session–event mapping
 - [ ] Event-wise and session-wise analytics
